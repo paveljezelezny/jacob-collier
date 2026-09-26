@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store — Jacob Collier</title>
+<meta name="description" content="Vinyl, tees, scarves, socks and signature guitars — the official Jacob Collier store, curated.">
+<meta name="theme-color" content="#050510">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caprasimo&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #050510;
+  --ink-soft:  #0C0C1A;
+  --ink-rule:  #1A1A2A;
+  --paper:     #F4EFE6;
+  --paper-mute:rgba(244,239,230,0.62);
+  --paper-dim: rgba(244,239,230,0.35);
+  --h1: #FF4E26;
+  --h2: #FFB84A;
+  --h3: #4DD7FF;
+  --h4: #B488FF;
+  --display: 'Caprasimo', 'Georgia', serif;
+  --sans:    'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+  --brand:   'Bagel Fat One', 'Caprasimo', system-ui, sans-serif;
+  --gutter: clamp(20px, 5vw, 64px);
+  --max:    1440px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+::selection { background: var(--h1); color: var(--paper); }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ── TOP BAR ───────────────────────────────────────────────── */
+.topbar {
+  position: fixed; inset: 0 0 auto 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px var(--gutter);
+  background: linear-gradient(180deg, rgba(5,5,16,0.85), rgba(5,5,16,0));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.4s, padding 0.4s, border-color 0.4s;
+}
+.topbar.scrolled {
+  background: rgba(5,5,16,0.92);
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--ink-rule);
+}
+.brand {
+  font-family: var(--brand);
+  font-weight: 400; font-size: 22px;
+  letter-spacing: 0.005em;
+  display: flex; align-items: center; gap: 12px;
+  color: var(--paper);
+}
+.brand-orb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: conic-gradient(var(--h1), var(--h2), var(--h3), var(--h4), var(--h1));
+  box-shadow: 0 0 12px var(--h1);
+  animation: orbspin 6s linear infinite;
+}
+@keyframes orbspin { to { transform: rotate(360deg); } }
+.navlinks {
+  display: flex; gap: 26px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.navlinks a { transition: color 0.25s; position: relative; padding: 4px 0; }
+.navlinks a::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 0; height: 1px; background: var(--h1);
+  transition: width 0.3s;
+}
+.navlinks a:hover { color: var(--paper); }
+.navlinks a:hover::after { width: 100%; }
+.navlinks a.here { color: var(--paper); }
+.navlinks a.here::after { width: 100%; }
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 100px;
+  border: 1px solid var(--paper);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  transition: background 0.25s, color 0.25s;
+}
+.nav-cta:hover { background: var(--paper); color: var(--ink); }
+.menu-btn { display: none; }
+@media (max-width: 1080px) {
+  .navlinks, .nav-cta { display: none; }
+  .menu-btn {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 38px; height: 38px; gap: 5px;
+  }
+  .menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--paper); transition: transform 0.3s, opacity 0.3s; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+}
+.mobile-drawer {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  z-index: 99;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 18px;
+  padding: 0 var(--gutter);
+  transform: translateY(-100%);
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1);
+  overflow-y: auto;
+}
+.mobile-drawer.open { transform: translateY(0); }
+.mobile-drawer a {
+  font-family: var(--display);
+  font-size: clamp(28px, 7vw, 52px);
+  letter-spacing: -0.02em;
+}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 62vh; min-height: 62dvh;
+  display: flex; align-items: flex-end;
+  padding: 140px var(--gutter) clamp(48px, 8vh, 88px);
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(70% 55% at 15% 15%, rgba(255,184,74,0.28) 0%, transparent 60%),
+    radial-gradient(60% 50% at 90% 85%, rgba(255,78,38,0.30) 0%, transparent 60%),
+    linear-gradient(180deg, #050510 0%, #140A18 60%, #1E0E14 100%);
+}
+.hero-grain {
+  position: absolute; inset: 0; z-index: -1;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+}
+.hero-inner { max-width: var(--max); margin: 0 auto; width: 100%; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 9px 16px;
+  background: rgba(5,5,16,0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(244,239,230,0.18);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+  margin-bottom: 28px;
+}
+.hero-eyebrow .blink {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--h2); box-shadow: 0 0 8px var(--h2);
+  animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.hero h1 {
+  font-family: var(--brand);
+  font-weight: 400;
+  font-size: clamp(56px, 11vw, 160px);
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--h2), var(--h1), var(--h4));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.hero p.lede {
+  margin-top: 24px;
+  font-family: var(--display);
+  font-size: clamp(17px, 2vw, 24px);
+  color: var(--paper-mute);
+  max-width: 560px;
+  line-height: 1.45;
+}
+.hero .note {
+  margin-top: 18px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* ── SECTIONS ──────────────────────────────────────────────── */
+section.shop { padding: clamp(56px, 9vh, 110px) 0 0; }
+section.shop:last-of-type { padding-bottom: clamp(72px, 11vh, 130px); }
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  margin-bottom: clamp(28px, 4vh, 44px);
+}
+.section-num {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--paper-mute);
+  display: block; margin-bottom: 10px;
+}
+.section-h {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(30px, 4.5vw, 56px);
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.section-h em { font-style: italic; color: var(--h1); }
+.see-all {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+  border-bottom: 1px solid var(--paper-dim);
+  padding-bottom: 3px;
+  transition: color 0.25s, border-color 0.25s;
+}
+.see-all:hover { color: var(--paper); border-color: var(--h1); }
+
+/* ── PRODUCT GRID ──────────────────────────────────────────── */
+.prod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+.prod {
+  display: flex; flex-direction: column; gap: 14px;
+  border: 1px solid var(--ink-rule);
+  border-radius: 22px;
+  background: var(--ink-soft);
+  padding: 16px;
+  transition: transform 0.35s, border-color 0.35s, box-shadow 0.35s;
+}
+.prod:hover {
+  transform: translateY(-6px) rotate(-0.4deg);
+  border-color: rgba(244,239,230,0.25);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+.prod-art {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 18px;
+}
+.prod-art em {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.15;
+  color: var(--paper);
+  text-shadow: 0 2px 18px rgba(0,0,0,0.35);
+}
+.prod-art img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 0.6s ease;
+}
+.prod-art img.loaded { opacity: 1; }
+.prod-art:has(img.loaded) em { opacity: 0; }
+.prod-art em { transition: opacity 0.5s; }
+.prod:hover .prod-art img.loaded { transform: scale(1.04); transition: opacity 0.6s, transform 0.5s; }
+/* gradient cover variants */
+.prod-art[data-art="tlfd"]    { background: linear-gradient(135deg, #0A0A1F 0%, #FF4E26 100%); }
+.prod-art[data-art="black"]   { background: linear-gradient(135deg, #15151E, #2E2E3C); }
+.prod-art[data-art="cd"]      { background: linear-gradient(135deg, #3A4FCE, #4DD7FF); }
+.prod-art[data-art="lydian"]  { background: linear-gradient(135deg, #B488FF, #FF4E26); }
+.prod-art[data-art="guitar"]  { background: linear-gradient(135deg, #1E1408, #FFB84A); }
+.prod-art[data-art="scarf"]   { background: linear-gradient(135deg, #E85D5D, #FFB84A); }
+.prod-art[data-art="socks"]   { background: linear-gradient(135deg, #4DD7FF, #B488FF); }
+.prod-art[data-art="vol4"]    { background: linear-gradient(135deg, #050615, #3A4FCE); }
+.prod-art[data-art="vol3"]    { background: linear-gradient(135deg, #1A0820, #E85D5D); }
+.prod-art[data-art="vol2"]    { background: linear-gradient(135deg, #FFF3D0, #F0D070); }
+.prod-art[data-art="vol2"] em { color: #2B1810; text-shadow: none; }
+.prod-art[data-art="vol1"]    { background: linear-gradient(135deg, #2B1810, #F5B664); }
+.prod-art[data-art="imr"]     { background: linear-gradient(135deg, #2B1A4A, #4A2070); }
+.prod-art[data-art="taylor"]  { background: linear-gradient(135deg, #120D06, #8B5A2B); }
+.prod-art[data-art="strand"]  { background: linear-gradient(135deg, #06090D, #2F6F8F); }
+
+.prod-meta { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 6px; }
+.prod-name { font-weight: 600; font-size: 15px; line-height: 1.3; }
+.prod-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px;
+}
+.prod-price {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--paper-mute);
+}
+.prod-tag {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--h2);
+}
+.prod-cta {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper);
+  border: 1px solid var(--ink-rule);
+  border-radius: 100px;
+  padding: 7px 14px;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.prod:hover .prod-cta { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* ── CTA STRIP ─────────────────────────────────────────────── */
+.cta-strip {
+  margin-top: clamp(72px, 11vh, 130px);
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  background: var(--ink-soft);
+  border-top: 1px solid var(--ink-rule);
+  text-align: center;
+}
+.cta-strip h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 60px);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+.cta-strip h2 em { font-style: italic; color: var(--h2); }
+.cta-strip p {
+  font-family: var(--display); font-style: italic;
+  font-size: clamp(16px, 1.8vw, 20px);
+  color: var(--paper-mute);
+  max-width: 540px; margin: 0 auto 32px;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 28px;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500;
+  background: var(--paper); color: var(--ink);
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+.btn:hover { background: var(--h1); color: var(--paper); transform: translateY(-2px); }
+.btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--paper-dim); }
+.btn.ghost:hover { border-color: var(--paper); background: var(--paper); color: var(--ink); }
+.cta-row { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer {
+  padding: 48px var(--gutter) 32px;
+  background: var(--ink);
+  border-top: 1px solid var(--ink-rule);
+}
+.foot-row {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; flex-wrap: wrap;
+  justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.foot-row .links { display: flex; gap: 28px; flex-wrap: wrap; }
+.foot-row a { transition: color 0.25s; }
+.foot-row a:hover { color: var(--paper); }
+
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+.nav-new::before {
+  content: ""; position: absolute; right: -9px; top: 2px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--h2); box-shadow: 0 0 8px var(--h2);
+}
+
+/* Drawer: never peeks out while closed; scrolls instead of overflowing on short screens */
+.mobile-drawer {
+  justify-content: safe center;
+  padding-top: 88px; padding-bottom: 40px;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s linear 0.45s;
+}
+.mobile-drawer.open { visibility: visible; transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s; }
+.mobile-drawer a { font-size: clamp(26px, 6vw, 46px); }
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <a href="index.html" class="brand">
+    <span class="brand-orb"></span>
+    <span>Jacob Collier</span>
+  </a>
+  <nav class="navlinks">
+    <a href="tour.html">On Tour</a>
+    <a href="index.html#discography">Music</a>
+    <a href="index.html#videos">Videos</a>
+    <a href="lab.html" class="nav-new">Lab</a>
+    <a href="store.html" class="here">Store</a>
+    <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+    <a href="contact.html">Contact</a>
+    <a href="djesse.html">Djesse Archive</a>
+  </nav>
+  <a href="index.html#connect" class="nav-cta">Sign Up</a>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-drawer" id="drawer">
+  <a href="tour.html">On Tour</a>
+  <a href="index.html#discography">Music</a>
+  <a href="index.html#videos">Videos</a>
+  <a href="lab.html">Harmony Lab</a>
+  <a href="store.html">Store</a>
+  <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+  <a href="contact.html">Contact</a>
+  <a href="index.html#connect">Sign Up</a>
+  <a href="djesse.html">Djesse Archive</a>
+</div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-inner">
+    <span class="hero-eyebrow"><span class="blink"></span>Official store · Worldwide shipping</span>
+    <h1>Wear the <em>music.</em></h1>
+    <p class="lede">Vinyl, tees, scarves, confetti socks and two signature guitars — everything ships from the official store.</p>
+    <p class="note">Checkout happens securely at shop.jacobcollier.com ↗</p>
+  </div>
+</section>
+
+<section class="shop">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-num">01 — The new record</span>
+        <h2 class="section-h">The Light <em>For Days</em></h2>
+      </div>
+      <a class="see-all" href="https://shop.jacobcollier.com/collections/the-light-for-days" target="_blank" rel="noopener">View collection ↗</a>
+    </div>
+    <div class="prod-grid reveal">
+      <a class="prod" href="https://shop.jacobcollier.com/products/the-light-for-days-store-exclusive-1lp-vinyl" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="tlfd"><em>The Light<br>For Days</em><img data-src="https://shop.jacobcollier.com/cdn/shop/files/JC_TLFD_COVER_NOTEXT_1.webp?v=1758139046&width=600" alt="The Light For Days — Store Exclusive 1LP Vinyl"></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Store exclusive</span>
+          <span class="prod-name">The Light For Days — Exclusive 1LP Vinyl</span>
+          <div class="prod-foot"><span class="prod-price">$33.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/the-light-for-days-black-1lp-vinyl" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="black"><em>Black<br>1LP Vinyl</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Vinyl</span>
+          <span class="prod-name">The Light For Days — Black 1LP Vinyl</span>
+          <div class="prod-foot"><span class="prod-price">$33.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/the-light-for-days-cd" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="cd"><em>The Light<br>For Days — CD</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">CD</span>
+          <span class="prod-name">The Light For Days — CD</span>
+          <div class="prod-foot"><span class="prod-price">$14.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="shop">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-num">02 — Merchandise</span>
+        <h2 class="section-h">Don't be cool. <em>Be warm.</em></h2>
+      </div>
+      <a class="see-all" href="https://shop.jacobcollier.com/collections/merch" target="_blank" rel="noopener">All merchandise ↗</a>
+    </div>
+    <div class="prod-grid reveal">
+      <a class="prod" href="https://shop.jacobcollier.com/products/super-ultra-hyper-mega-meta-lydian-tee" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="lydian"><em>Super Ultra<br>Hyper Mega<br>Meta Lydian</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Tee</span>
+          <span class="prod-name">Super Ultra Hyper Mega Meta Lydian Tee</span>
+          <div class="prod-foot"><span class="prod-price">$40.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/jacob-collier-guitar-tee" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="guitar"><em>Guitar<br>Tee</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Tee</span>
+          <span class="prod-name">Jacob Collier Guitar Tee</span>
+          <div class="prod-foot"><span class="prod-price">$40.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/dont-be-cool-be-warm-scarf" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="scarf"><em>Don't Be Cool<br>Be Warm</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Scarf</span>
+          <span class="prod-name">Don't Be Cool Be Warm Scarf</span>
+          <div class="prod-foot"><span class="prod-price">$30.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/jacob-collier-confetti-socks" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="socks"><em>Confetti<br>Socks</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Socks</span>
+          <span class="prod-name">Jacob Collier Confetti Socks</span>
+          <div class="prod-foot"><span class="prod-price">$20.00</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="shop">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-num">03 — Shop by album</span>
+        <h2 class="section-h">Six records. <em>One arc.</em></h2>
+      </div>
+      <a class="see-all" href="https://shop.jacobcollier.com/collections/music" target="_blank" rel="noopener">All music ↗</a>
+    </div>
+    <div class="prod-grid reveal">
+      <a class="prod" href="https://shop.jacobcollier.com/collections/the-light-for-days" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="tlfd"><em>The Light<br>For Days</em></div>
+        <div class="prod-meta"><span class="prod-name">The Light For Days</span>
+          <div class="prod-foot"><span class="prod-price">2025</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/collections/djesse-vol-4" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="vol4"><em>Djesse<br>Vol. 4</em></div>
+        <div class="prod-meta"><span class="prod-name">Djesse Vol. 4</span>
+          <div class="prod-foot"><span class="prod-price">2024</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/collections/djesse-vol-3" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="vol3"><em>Djesse<br>Vol. 3</em></div>
+        <div class="prod-meta"><span class="prod-name">Djesse Vol. 3</span>
+          <div class="prod-foot"><span class="prod-price">2020</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/collections/djesse-vol-2" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="vol2"><em>Djesse<br>Vol. 2</em></div>
+        <div class="prod-meta"><span class="prod-name">Djesse Vol. 2</span>
+          <div class="prod-foot"><span class="prod-price">2019</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/collections/djesse-vol-1" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="vol1"><em>Djesse<br>Vol. 1</em></div>
+        <div class="prod-meta"><span class="prod-name">Djesse Vol. 1</span>
+          <div class="prod-foot"><span class="prod-price">2018</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/collections/in-my-room" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="imr"><em>In My<br>Room</em></div>
+        <div class="prod-meta"><span class="prod-name">In My Room</span>
+          <div class="prod-foot"><span class="prod-price">2016</span><span class="prod-cta">Browse ↗</span></div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="shop">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-num">04 — Signature guitars</span>
+        <h2 class="section-h">Strings <em>attached.</em></h2>
+      </div>
+    </div>
+    <div class="prod-grid reveal">
+      <a class="prod" href="https://jacobcollier.lnk.to/TaylorGuitars" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="taylor"><em>Jacob Collier<br>× Taylor</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Acoustic</span>
+          <span class="prod-name">Jacob Collier × Taylor Guitars</span>
+          <div class="prod-foot"><span class="prod-price">Signature</span><span class="prod-cta">Explore ↗</span></div>
+        </div>
+      </a>
+      <a class="prod" href="https://shop.jacobcollier.com/products/boden-jc-djesse-limited-edition-strandberg" target="_blank" rel="noopener">
+        <div class="prod-art" data-art="strand"><em>Boden JC<br>× Strandberg</em></div>
+        <div class="prod-meta">
+          <span class="prod-tag">Limited edition</span>
+          <span class="prod-name">Boden JC Djesse — Strandberg</span>
+          <div class="prod-foot"><span class="prod-price">Signature</span><span class="prod-cta">Shop ↗</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Looking for <em>everything else?</em></h2>
+  <p>Hoodies, sheet music, posters and more live in the full official store.</p>
+  <div class="cta-row">
+    <a href="https://shop.jacobcollier.com/" target="_blank" rel="noopener" class="btn">Open the full store ↗</a>
+    <a href="index.html#discography" class="btn ghost">Back to the music</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-row">
+    <span>© 2026 · Hajanga Records · Fan project</span>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="https://www.jacobcollier.com" target="_blank" rel="noopener">Official Site</a>
+      <a href="djesse.html">Djesse Archive</a>
+      <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+      <a href="tour.html">All Tour Dates</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const topbar = document.getElementById('topbar');
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+const menuBtn = document.getElementById('menuBtn');
+const drawer  = document.getElementById('drawer');
+menuBtn.addEventListener('click', () => {
+  menuBtn.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  menuBtn.classList.remove('open');
+  drawer.classList.remove('open');
+}));
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* Lazy-load real product photos where we have them; gradient covers stay as fallback */
+document.querySelectorAll('.prod-art img[data-src]').forEach(img => {
+  const load = () => {
+    img.src = img.dataset.src;
+    img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+  };
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { load(); obs.unobserve(e.target); } });
+  }, { rootMargin: '200px' });
+  obs.observe(img);
+});
+</script>
+
+<script src="analytics.js"></script>
+</body>
+</html>

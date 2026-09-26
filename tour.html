@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tour 2026 — Jacob Collier</title>
+<meta name="description" content="Ten dates. Four continents. Cape Town to Tenerife — March to July 2026.">
+<meta name="theme-color" content="#050510">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caprasimo&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #0A0A0F;
+  --ink-soft:   #14141C;
+  --ink-rule:   #1F1F2A;
+  --paper:      #F4EFE6;
+  --paper-soft: #E8E1D3;
+  --paper-mute: rgba(244,239,230,0.55);
+  --paper-dim:  rgba(244,239,230,0.32);
+
+  --dawn:    #F5B664;
+  --noon:    #FFE066;
+  --dusk:    #E85D5D;
+  --night:   #3A4FCE;
+  --signal:  #FF4E26;
+
+  --display:  'Caprasimo', 'Georgia', serif;
+  --sans:     'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --mono:     'JetBrains Mono', ui-monospace, monospace;
+  --brand:    'Bagel Fat One', 'Caprasimo', system-ui, sans-serif;
+
+  --gutter: clamp(20px, 5vw, 64px);
+  --max:    1440px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  overflow-x: hidden;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+::selection { background: var(--signal); color: var(--paper); }
+
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--paper-mute);
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.eyebrow::before {
+  content: ""; width: 28px; height: 1px;
+  background: var(--paper-dim);
+}
+
+/* ── TOP BAR ───────────────────────────────────────────────── */
+.topbar {
+  position: fixed; inset: 0 0 auto 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px var(--gutter);
+  background: linear-gradient(180deg, rgba(10,10,15,0.85), rgba(10,10,15,0));
+  backdrop-filter: blur(8px);
+  transition: background 0.4s, padding 0.4s, border-color 0.4s;
+}
+.topbar.scrolled {
+  background: rgba(10,10,15,0.92);
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--ink-rule);
+}
+.brand {
+  font-family: var(--brand); font-weight: 400;
+  font-size: 22px; letter-spacing: 0.005em;
+  display: flex; align-items: center; gap: 12px;
+}
+.brand-orb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: conic-gradient(#FF4E26, #FFB84A, #4DD7FF, #B488FF, #FF4E26);
+  box-shadow: 0 0 12px #FF4E26;
+  animation: orbspin 6s linear infinite;
+}
+@keyframes orbspin { to { transform: rotate(360deg); } }
+.brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--signal); box-shadow: 0 0 12px var(--signal);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.85); } }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+  transition: color 0.25s, gap 0.25s;
+}
+.back-link:hover { color: var(--paper); gap: 14px; }
+.back-link svg { width: 14px; height: 14px; }
+
+.navlinks {
+  display: flex; gap: 26px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.navlinks a { transition: color 0.25s; position: relative; padding: 4px 0; }
+.navlinks a::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 0; height: 1px; background: var(--signal);
+  transition: width 0.3s;
+}
+.navlinks a:hover { color: var(--paper); }
+.navlinks a:hover::after { width: 100%; }
+.navlinks a.here { color: var(--paper); }
+.navlinks a.here::after { width: 100%; }
+.menu-btn { display: none; }
+@media (max-width: 1080px) {
+  .navlinks { display: none; }
+  .menu-btn {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 38px; height: 38px; gap: 5px;
+  }
+  .menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--paper); transition: transform 0.3s, opacity 0.3s; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+}
+.mobile-drawer {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  z-index: 99;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 18px;
+  padding: 0 var(--gutter);
+  transform: translateY(-100%);
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1);
+  overflow-y: auto;
+}
+.mobile-drawer.open { transform: translateY(0); }
+.mobile-drawer a {
+  font-family: var(--display);
+  font-size: clamp(28px, 7vw, 52px);
+  letter-spacing: -0.02em;
+}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 88vh; min-height: 88dvh;
+  display: flex; align-items: center;
+  padding: 120px var(--gutter) 80px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-arc {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(80% 60% at 80% 40%, rgba(58,79,206,0.45) 0%, transparent 55%),
+    radial-gradient(60% 50% at 10% 80%, rgba(255,78,38,0.20) 0%, transparent 60%),
+    radial-gradient(50% 40% at 50% 10%, rgba(232,93,93,0.18) 0%, transparent 60%),
+    linear-gradient(160deg, #0A0A0F 0%, #0E1230 50%, #15102A 100%);
+}
+.hero-grain {
+  position: absolute; inset: 0; z-index: -1;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.5; pointer-events: none;
+}
+.globe-bg {
+  position: absolute; right: -12%; top: 50%;
+  transform: translateY(-50%);
+  width: 70vmin; height: 70vmin;
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
+}
+@media (max-width: 880px) {
+  .globe-bg { right: -50%; opacity: 0.2; width: 110vmin; height: 110vmin; }
+}
+.globe-bg svg { width: 100%; height: 100%; }
+.globe-bg circle.dot {
+  fill: var(--signal);
+}
+
+.hero-grid {
+  display: grid; grid-template-columns: 1fr;
+  gap: 36px; width: 100%;
+}
+.hero-meta { display: flex; flex-direction: column; gap: 28px; max-width: 920px; }
+.hero-title {
+  font-family: var(--brand);
+  font-weight: 400;
+  font-size: clamp(64px, 14vw, 220px);
+  letter-spacing: 0.005em;
+  line-height: 0.88;
+  color: var(--paper);
+}
+.hero-title em {
+  font-style: normal; font-weight: 400;
+  background: linear-gradient(90deg, var(--dawn), var(--signal), var(--night));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-sub {
+  font-family: var(--display);
+  font-weight: 350;
+  font-style: italic;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.4;
+  color: var(--paper-soft);
+  max-width: 620px;
+}
+.hero-foot {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  justify-content: space-between; gap: 24px;
+  padding-top: 28px;
+  border-top: 1px solid var(--ink-rule);
+}
+.hero-stats { display: flex; gap: clamp(24px, 4vw, 56px); }
+.hero-stat .n {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(32px, 4.5vw, 56px);
+  letter-spacing: -0.025em; line-height: 1;
+}
+.hero-stat .n em { font-style: italic; color: var(--signal); }
+.hero-stat .l {
+  display: block; margin-top: 6px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.hero-window {
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.hero-window strong { color: var(--paper); font-weight: 500; }
+
+/* ── FILTER ────────────────────────────────────────────────── */
+.filter-bar {
+  position: sticky; top: 64px;
+  z-index: 80;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--ink-rule);
+  border-bottom: 1px solid var(--ink-rule);
+  padding: 14px var(--gutter);
+}
+.filter-row {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; align-items: center; gap: 24px;
+  flex-wrap: wrap;
+}
+.filter-label {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.filter-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+  transition: color 0.25s, background 0.25s, border-color 0.25s;
+}
+.filter-btn:hover { color: var(--paper); }
+.filter-btn.active {
+  color: var(--ink); background: var(--paper); border-color: var(--paper);
+}
+
+/* ── DATES ─────────────────────────────────────────────────── */
+.dates { padding: clamp(64px, 10vh, 120px) 0; }
+
+.month-group { margin-bottom: clamp(48px, 7vh, 80px); }
+.month-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: baseline;
+  gap: 8px;
+  padding: 24px 0 12px;
+  border-top: 1px solid var(--ink-rule);
+  margin-bottom: 12px;
+}
+@media (min-width: 720px) {
+  .month-header { grid-template-columns: 200px 1fr auto; gap: 32px; }
+}
+.month-name {
+  font-family: var(--display);
+  font-weight: 350;
+  font-size: clamp(40px, 5vw, 64px);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.month-name em { font-style: italic; }
+.month-meta {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+
+.date-card {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--ink-rule);
+  transition: padding-left 0.35s, background 0.35s;
+  cursor: pointer;
+  position: relative;
+}
+@media (min-width: 880px) {
+  .date-card {
+    grid-template-columns: 140px 1fr 1fr auto;
+    gap: 32px;
+    align-items: center;
+    padding: 36px 0;
+  }
+}
+.date-card:hover { padding-left: 18px; background: rgba(244,239,230,0.02); }
+.date-card:hover .date-num { color: var(--signal); }
+.date-card:hover .date-flag { transform: translateX(4px); }
+
+.date-num {
+  font-family: var(--display);
+  font-weight: 350;
+  font-size: clamp(40px, 5vw, 64px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--paper);
+  transition: color 0.3s;
+}
+.date-day {
+  display: block; margin-top: 4px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.date-place { display: flex; flex-direction: column; gap: 8px; }
+.date-city {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(24px, 3vw, 38px);
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.date-country {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.date-flag {
+  display: inline-block;
+  width: 22px; height: 14px;
+  border: 1px solid var(--paper-dim);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+.date-flag::before, .date-flag::after {
+  content: ""; position: absolute; inset: 0;
+}
+.date-flag[data-c="za"]::before {
+  background:
+    linear-gradient(180deg, #007749 0%, #007749 33%, #FFFFFF 33%, #FFFFFF 38%,
+    #001489 38%, #001489 62%, #FFFFFF 62%, #FFFFFF 67%, #DE3831 67%, #DE3831 100%);
+}
+.date-flag[data-c="ca"]::before { background: linear-gradient(90deg, #D52B1E 0 30%, #FFF 30% 70%, #D52B1E 70%); }
+.date-flag[data-c="us"]::before { background: linear-gradient(180deg, #B22234 0 14%, #FFF 14% 28%, #B22234 28% 42%, #FFF 42% 56%, #B22234 56% 70%, #FFF 70% 84%, #B22234 84% 100%); }
+.date-flag[data-c="us"]::after { width: 9px; height: 8px; background: #3C3B6E; left: 0; top: 0; }
+.date-flag[data-c="lt"]::before { background: linear-gradient(180deg, #FDB913 0 33%, #006A44 33% 66%, #C1272D 66% 100%); }
+.date-flag[data-c="it"]::before { background: linear-gradient(90deg, #008C45 0 33%, #F4F5F0 33% 66%, #CD212A 66% 100%); }
+.date-flag[data-c="es"]::before { background: linear-gradient(180deg, #C60B1E 0 25%, #FFC400 25% 75%, #C60B1E 75% 100%); }
+
+.date-venue {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--paper-soft);
+}
+.date-venue strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(16px, 1.5vw, 18px);
+  color: var(--paper);
+  margin-bottom: 4px;
+}
+.date-with {
+  display: block; margin-top: 6px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.date-with .accent { color: var(--signal); }
+
+.date-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.tix-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+.tix-btn.primary {
+  background: var(--paper);
+  color: var(--ink);
+}
+.tix-btn.primary:hover { background: var(--signal); color: var(--paper); transform: translateY(-2px); }
+.tix-btn.ghost {
+  border: 1px solid var(--paper-dim);
+  color: var(--paper);
+}
+.tix-btn.ghost:hover { border-color: var(--paper); background: var(--paper); color: var(--ink); }
+
+.date-card.hidden { display: none; }
+
+/* ── CTA STRIP ────────────────────────────────────────────── */
+.cta-strip {
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  background: var(--ink-soft);
+  border-top: 1px solid var(--ink-rule);
+  text-align: center;
+}
+.cta-strip h2 {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(36px, 5vw, 64px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+.cta-strip h2 em { font-style: italic; color: var(--signal); }
+.cta-strip p {
+  font-family: var(--display); font-style: italic;
+  font-size: clamp(17px, 1.8vw, 20px);
+  color: var(--paper-mute);
+  max-width: 540px; margin: 0 auto 32px;
+  line-height: 1.5;
+}
+.cta-strip .cta-row {
+  display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+}
+.cta-strip .tix-btn { padding: 16px 26px; }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+footer {
+  padding: 48px var(--gutter) 32px;
+  background: var(--ink);
+  border-top: 1px solid var(--ink-rule);
+}
+.foot-row {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; flex-wrap: wrap;
+  justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.foot-row .links { display: flex; gap: 28px; flex-wrap: wrap; }
+.foot-row a { transition: color 0.25s; }
+.foot-row a:hover { color: var(--paper); }
+
+/* ── Reveal ───────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+
+.nav-new::before {
+  content: ""; position: absolute; right: -9px; top: 2px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #FFB84A; box-shadow: 0 0 8px #FFB84A;
+}
+
+/* ── Date-aware states ───────────────────────────────────── */
+.hero-state {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  border: 1px solid rgba(244,239,230,0.18);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper);
+}
+.hero-state[hidden] { display: none; }
+.hero-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 8px var(--signal); }
+.date-card.past { opacity: 0.5; }
+.date-card.past:hover { opacity: 0.85; }
+.played-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px;
+  border: 1px dashed var(--paper-dim);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.played-tag svg { width: 12px; height: 12px; }
+.date-card.next { background: rgba(255,78,38,0.04); }
+.date-card.next .date-num { color: var(--signal); }
+.next-badge {
+  position: absolute; top: 14px; left: 0;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--signal);
+}
+
+/* Drawer: never peeks out while closed; scrolls instead of overflowing on short screens */
+.mobile-drawer {
+  justify-content: safe center;
+  padding-top: 88px; padding-bottom: 40px;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s linear 0.45s;
+}
+.mobile-drawer.open { visibility: visible; transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s; }
+.mobile-drawer a { font-size: clamp(26px, 6vw, 46px); }
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <a href="index.html" class="brand">
+    <span class="brand-orb"></span>
+    <span>Jacob Collier</span>
+  </a>
+  <nav class="navlinks">
+    <a href="tour.html" class="here">On Tour</a>
+    <a href="index.html#discography">Music</a>
+    <a href="index.html#videos">Videos</a>
+    <a href="lab.html" class="nav-new">Lab</a>
+    <a href="store.html">Store</a>
+    <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+    <a href="contact.html">Contact</a>
+    <a href="djesse.html">Djesse Archive</a>
+  </nav>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-drawer" id="drawer">
+  <a href="tour.html">On Tour</a>
+  <a href="index.html#discography">Music</a>
+  <a href="index.html#videos">Videos</a>
+  <a href="lab.html">Harmony Lab</a>
+  <a href="store.html">Store</a>
+  <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+  <a href="contact.html">Contact</a>
+  <a href="index.html#connect">Sign Up</a>
+  <a href="djesse.html">Djesse Archive</a>
+</div>
+
+<section class="hero">
+  <div class="hero-arc"></div>
+  <div class="hero-grain"></div>
+
+  <div class="globe-bg" aria-hidden="true">
+    <svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="globeFill" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1A2570" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#050615" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="0" cy="0" r="96" fill="url(#globeFill)"/>
+      <circle cx="0" cy="0" r="96" fill="none" stroke="rgba(244,239,230,0.18)" stroke-width="0.3"/>
+      <ellipse cx="0" cy="0" rx="96" ry="32" fill="none" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+      <ellipse cx="0" cy="0" rx="96" ry="64" fill="none" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+      <ellipse cx="0" cy="0" rx="32" ry="96" fill="none" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+      <ellipse cx="0" cy="0" rx="64" ry="96" fill="none" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+      <line x1="-96" y1="0" x2="96" y2="0" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+      <line x1="0" y1="-96" x2="0" y2="96" stroke="rgba(244,239,230,0.13)" stroke-width="0.25"/>
+
+      <circle class="dot" cx="10" cy="37" r="1.6"/>
+      <circle cx="10" cy="37" r="5" fill="none" stroke="#FF4E26" stroke-width="0.4" opacity="0.6"/>
+      <circle class="dot" cx="-68" cy="-27" r="1.6"/>
+      <circle class="dot" cx="-39" cy="-23" r="1.6"/>
+      <circle class="dot" cx="14" cy="-30" r="1.6"/>
+      <circle class="dot" cx="7" cy="-24" r="1.6"/>
+      <circle class="dot" cx="-8" cy="-15" r="1.6"/>
+
+      <g stroke="rgba(255,78,38,0.45)" stroke-width="0.4" fill="none" stroke-dasharray="2 2">
+        <path d="M 10 37 Q -30 5 -68 -27"/>
+        <path d="M -68 -27 Q -50 -25 -39 -23"/>
+        <path d="M -39 -23 Q -10 -30 14 -30"/>
+        <path d="M 14 -30 Q 10 -27 7 -24"/>
+        <path d="M 7 -24 Q 0 -19 -8 -15"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-grid wrap">
+    <div class="hero-meta">
+      <span class="eyebrow">Tour · 2026 · A four-continent year</span>
+      <h1 class="hero-title">Live<br><em>2026</em></h1>
+      <p class="hero-sub">
+        Ten dates from autumn through high summer — solo, with The Boston Pops,
+        with chamber orchestras, with audience choirs.
+      </p>
+      <div class="hero-foot">
+        <div class="hero-stats">
+          <div class="hero-stat"><span class="n"><em>10</em></span><span class="l">Cities</span></div>
+          <div class="hero-stat"><span class="n">4</span><span class="l">Continents</span></div>
+          <div class="hero-stat"><span class="n">5</span><span class="l">Orchestras</span></div>
+          <div class="hero-stat"><span class="n">5</span><span class="l">Months</span></div>
+        </div>
+        <div class="hero-window">Window: <strong>27 Mar — 22 Jul 2026</strong></div>
+        <div class="hero-state" id="tourState" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="filter-bar">
+  <div class="filter-row">
+    <span class="filter-label">Filter</span>
+    <div class="filter-btns" id="filterBtns">
+      <button class="filter-btn active" data-month="all">All 10</button>
+      <button class="filter-btn" data-month="3">March</button>
+      <button class="filter-btn" data-month="4">April</button>
+      <button class="filter-btn" data-month="5">May</button>
+      <button class="filter-btn" data-month="7">July</button>
+    </div>
+  </div>
+</div>
+
+<section class="dates">
+  <div class="wrap">
+
+    <div class="month-group" data-month="3">
+      <div class="month-header reveal">
+        <div class="month-name"><em>March</em></div>
+        <div class="month-meta">1 date · Southern Africa opener</div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-03-27" data-month="3">
+        <div>
+          <div class="date-num">27</div>
+          <span class="date-day">Friday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Cape Town</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="za"></span>
+            South Africa
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Cape Town International Convention Centre</strong>
+          Auditorium 2
+          <span class="date-with">Solo show · <span class="accent">first time in Africa</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.ticketmaster.com/jacob-collier-tickets/artist/2264779" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="month-group" data-month="4">
+      <div class="month-header reveal">
+        <div class="month-name"><em>April</em></div>
+        <div class="month-meta">1 date · Pacific Northwest</div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-04-10" data-month="4">
+        <div>
+          <div class="date-num">10</div>
+          <span class="date-day">Friday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Vancouver</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="ca"></span>
+            British Columbia · Canada
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Orpheum Theatre</strong>
+          Granville Street · 2,780 seats
+          <span class="date-with">Solo show</span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.ticketmaster.com/jacob-collier-tickets/artist/2264779" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="month-group" data-month="5">
+      <div class="month-header reveal">
+        <div class="month-name"><em>May</em></div>
+        <div class="month-meta">2 dates · with The Boston Pops</div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-05-27" data-month="5">
+        <div>
+          <div class="date-num">27</div>
+          <span class="date-day">Wednesday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Boston</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="us"></span>
+            Massachusetts · USA
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Symphony Hall</strong>
+          301 Massachusetts Avenue
+          <span class="date-with">with <span class="accent">The Boston Pops Orchestra</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.bso.org" target="_blank" rel="noopener" class="tix-btn primary">BSO Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-05-28" data-month="5">
+        <div>
+          <div class="date-num">28</div>
+          <span class="date-day">Thursday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Boston</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="us"></span>
+            Massachusetts · USA
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Symphony Hall</strong>
+          Second night · added by demand
+          <span class="date-with">with <span class="accent">The Boston Pops Orchestra</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.bso.org" target="_blank" rel="noopener" class="tix-btn primary">BSO Tickets</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="month-group" data-month="7">
+      <div class="month-header reveal">
+        <div class="month-name"><em>July</em></div>
+        <div class="month-meta">6 dates · European summer · 5 orchestras</div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-11" data-month="7">
+        <div>
+          <div class="date-num">11</div>
+          <span class="date-day">Saturday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Vilnius</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="lt"></span>
+            Lithuania
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>National Philharmonic Hall</strong>
+          Aušros Vartų g. 5
+          <span class="date-with">with <span class="accent">Take 6</span> &amp; Lithuanian Chamber Orchestra</span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.bandsintown.com/a/3298684" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-14" data-month="7">
+        <div>
+          <div class="date-num">14</div>
+          <span class="date-day">Tuesday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Lignano Sabbiadoro</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="it"></span>
+            Italy
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Arena Alpe Adria</strong>
+          Open-air · Adriatic coast
+          <span class="date-with">with <span class="accent">Naonis Orchestra</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.songkick.com/artists/6775909" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-16" data-month="7">
+        <div>
+          <div class="date-num">16</div>
+          <span class="date-day">Thursday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Milan</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="it"></span>
+            Italy
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Teatro degli Arcimboldi</strong>
+          Viale dell'Innovazione
+          <span class="date-with">with <span class="accent">Naonis Orchestra</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.songkick.com/artists/6775909" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-18" data-month="7">
+        <div>
+          <div class="date-num">18</div>
+          <span class="date-day">Saturday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Rome</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="it"></span>
+            Italy
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Auditorium Parco della Musica</strong>
+          Renzo Piano · Sala Santa Cecilia
+          <span class="date-with">with <span class="accent">Naonis Orchestra</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://www.songkick.com/artists/6775909" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-21" data-month="7">
+        <div>
+          <div class="date-num">21</div>
+          <span class="date-day">Tuesday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Las Palmas de Gran Canaria</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="es"></span>
+            Canary Islands · Spain
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Auditorio Alfredo Kraus</strong>
+          On the Atlantic · designed by Tusquets
+          <span class="date-with">Orquesta Filarmónica de Gran Canaria · cond. <span class="accent">Suzie Collier</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://jacobcollier.com/tour" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+
+      <div class="date-card reveal" data-date="2026-07-22" data-month="7">
+        <div>
+          <div class="date-num">22</div>
+          <span class="date-day">Wednesday</span>
+        </div>
+        <div class="date-place">
+          <div class="date-city">Santa Cruz de Tenerife</div>
+          <div class="date-country">
+            <span class="date-flag" data-c="es"></span>
+            Canary Islands · Spain
+          </div>
+        </div>
+        <div class="date-venue">
+          <strong>Auditorio de Tenerife</strong>
+          Calatrava's wave · tour finale
+          <span class="date-with">Orquesta Filarmónica de Gran Canaria · cond. <span class="accent">Suzie Collier</span></span>
+        </div>
+        <div class="date-actions">
+          <a href="https://jacobcollier.com/tour" target="_blank" rel="noopener" class="tix-btn primary">Tickets</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Want to be <em>first</em> in line<br>for the next leg?</h2>
+  <p>Nothing new is announced here yet. Subscribers hear first, with a 48-hour presale window when the next run lands.</p>
+  <div class="cta-row">
+    <a href="index.html#connect" class="tix-btn primary">Join the list</a>
+    <a href="https://www.bandsintown.com/a/3298684" target="_blank" rel="noopener" class="tix-btn ghost">Bandsintown</a>
+    <a href="https://www.songkick.com/artists/6775909" target="_blank" rel="noopener" class="tix-btn ghost">Songkick</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-row">
+    <span>© 2026 · Jacob Collier · Hajanga / Decca / Interscope</span>
+    <div class="links">
+      <a href="index.html">Main site</a>
+      <a href="store.html">Store</a>
+      <a href="contact.html">Contact</a>
+      <a href="djesse.html">Djesse Archive</a>
+      <a href="https://jacobcollier.com" target="_blank" rel="noopener">Official</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const topbar = document.getElementById('topbar');
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+const menuBtn = document.getElementById('menuBtn');
+const drawer  = document.getElementById('drawer');
+menuBtn.addEventListener('click', () => {
+  menuBtn.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  menuBtn.classList.remove('open');
+  drawer.classList.remove('open');
+}));
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const btns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.date-card');
+const months = document.querySelectorAll('.month-group');
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const m = btn.dataset.month;
+  cards.forEach(c => c.classList.toggle('hidden', m !== 'all' && c.dataset.month !== m));
+  months.forEach(g => {
+    g.style.display = (m === 'all' || g.dataset.month === m) ? '' : 'none';
+  });
+}));
+
+/* Rows know what date it is: past shows are marked played, the next one lights up */
+(function dateAware() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const cards = Array.from(document.querySelectorAll('.date-card[data-date]'));
+  let played = 0, next = null;
+  cards.forEach(c => {
+    const d = new Date(c.dataset.date + 'T23:59:59');
+    if (d < today) {
+      played++;
+      c.classList.add('past');
+      const act = c.querySelector('.date-actions');
+      if (act) act.innerHTML = '<span class="played-tag"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.5 5 9l4.5-6"/></svg>Played</span>';
+    } else if (!next) {
+      next = c;
+      c.classList.add('next');
+      const b = document.createElement('span'); b.className = 'next-badge'; b.textContent = 'Next up';
+      c.appendChild(b);
+    }
+  });
+  const st = document.getElementById('tourState');
+  if (!st || !cards.length) return;
+  st.hidden = false;
+  if (next) {
+    const days = Math.round((new Date(next.dataset.date + 'T00:00:00') - today) / 86400000);   // local time, like `today`
+    const city = next.querySelector('.date-city')?.textContent || '';
+    st.innerHTML = `<i></i>Next: ${city} · ${days <= 0 ? 'tonight' : days === 1 ? 'tomorrow' : 'in ' + days + ' days'}`;
+  } else {
+    st.innerHTML = `<i></i>Run complete · ${played} of ${cards.length} played`;
+  }
+})();
+</script>
+
+<script src="analytics.js"></script>
+</body>
+</html>

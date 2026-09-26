@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony Lab — Jacob Collier</title>
+<meta name="description" content="Four playable harmony experiments: flip chords through the negative-harmony mirror, drift a choir into G half-sharp, conduct an audience choir, and sing into a live harmonizer.">
+<meta property="og:title" content="Harmony Lab — Jacob Collier fan site">
+<meta property="og:description" content="Mirror chords, drift into G half-sharp, conduct a crowd, sing into a harmonizer. All synthesized live in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://paveljezelezny.github.io/jacob-collier/og-image.png">
+<meta property="og:url" content="https://paveljezelezny.github.io/jacob-collier/lab.html">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#050510">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caprasimo&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Accidentals: pull only ♭ ♮ ♯ from a symbol face so they sit tight in any display font */
+@font-face { font-family: 'Acc'; src: local('Apple Symbols'), local('Segoe UI Symbol'), local('Noto Music'), local('Noto Sans Symbols 2'), local('Noto Sans Symbols'), local('DejaVu Sans'), local('Symbola'); unicode-range: U+266D-266F; }
+:root {
+  --ink:       #050510;
+  --ink-soft:  #0C0C1A;
+  --ink-rule:  #1A1A2A;
+  --paper:     #F4EFE6;
+  --paper-mute:rgba(244,239,230,0.62);
+  --paper-dim: rgba(244,239,230,0.35);
+  --h1: #FF4E26;
+  --h2: #FFB84A;
+  --h3: #4DD7FF;
+  --h4: #B488FF;
+  --display: 'Acc', 'Caprasimo', 'Georgia', serif;
+  --sans:    'Acc', 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --mono:    'Acc', 'JetBrains Mono', ui-monospace, monospace;
+  --brand:   'Acc', 'Bagel Fat One', 'Caprasimo', system-ui, sans-serif;
+  --gutter: clamp(16px, 5vw, 64px);
+  --max:    1440px;
+  --ease:   cubic-bezier(0.16, 1, 0.3, 1);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+::selection { background: var(--h1); color: var(--paper); }
+:focus-visible { outline: 2px solid var(--h2); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ── TOP BAR (shared chrome) ───────────────────────────────── */
+.topbar {
+  position: fixed; inset: 0 0 auto 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px var(--gutter);
+  background: linear-gradient(180deg, rgba(5,5,16,0.85), rgba(5,5,16,0));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.4s, padding 0.4s, border-color 0.4s;
+}
+.topbar.scrolled {
+  background: rgba(5,5,16,0.92);
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--ink-rule);
+}
+.brand {
+  font-family: var(--brand);
+  font-weight: 400; font-size: 22px;
+  letter-spacing: 0.005em;
+  display: flex; align-items: center; gap: 12px;
+  color: var(--paper);
+}
+.brand-orb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: conic-gradient(var(--h1), var(--h2), var(--h3), var(--h4), var(--h1));
+  box-shadow: 0 0 12px var(--h1);
+  animation: orbspin 6s linear infinite;
+}
+@keyframes orbspin { to { transform: rotate(360deg); } }
+.navlinks {
+  display: flex; gap: 26px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.navlinks a { transition: color 0.25s; position: relative; padding: 4px 0; }
+.navlinks a::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 0; height: 1px; background: var(--h1);
+  transition: width 0.3s;
+}
+.navlinks a:hover { color: var(--paper); }
+.navlinks a:hover::after { width: 100%; }
+.navlinks a.here { color: var(--paper); }
+.navlinks a.here::after { width: 100%; }
+.nav-new::before {
+  content: ""; position: absolute; right: -9px; top: 2px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--h2); box-shadow: 0 0 8px var(--h2);
+}
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 100px;
+  border: 1px solid var(--paper);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  transition: background 0.25s, color 0.25s;
+}
+.nav-cta:hover { background: var(--paper); color: var(--ink); }
+.menu-btn { display: none; }
+@media (max-width: 1080px) {
+  .navlinks, .nav-cta { display: none; }
+  .menu-btn {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 38px; height: 38px; gap: 5px;
+  }
+  .menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--paper); transition: transform 0.3s, opacity 0.3s; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+}
+.mobile-drawer {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  z-index: 99;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 18px;
+  padding: 0 var(--gutter);
+  transform: translateY(-100%);
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1);
+  overflow-y: auto;
+}
+.mobile-drawer.open { transform: translateY(0); }
+.mobile-drawer a {
+  font-family: var(--display);
+  font-size: clamp(28px, 7vw, 52px);
+  letter-spacing: -0.02em;
+}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 92vh; min-height: 92dvh;
+  display: flex; align-items: flex-end;
+  padding: 140px var(--gutter) clamp(48px, 9vh, 96px);
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(55% 45% at 12% 20%, rgba(255,184,74,0.20) 0%, transparent 62%),
+    radial-gradient(50% 50% at 88% 30%, rgba(77,215,255,0.16) 0%, transparent 62%),
+    radial-gradient(60% 50% at 70% 100%, rgba(255,78,38,0.20) 0%, transparent 62%),
+    linear-gradient(180deg, #050510 0%, #0A0918 70%, #0E0A14 100%);
+}
+.hero-staff {
+  position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.hero-staff path { fill: none; stroke: rgba(244,239,230,0.08); stroke-width: 1; }
+.hero-staff circle { fill: var(--paper); opacity: 0; }
+.hero-grain {
+  position: fixed; inset: 0; z-index: 200;
+  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: overlay; pointer-events: none;
+}
+.hero-inner {
+  max-width: var(--max); margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: end;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 9px 16px;
+  background: rgba(5,5,16,0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(244,239,230,0.18);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+  margin-bottom: 28px;
+}
+.eyebrow .blink {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--h3); box-shadow: 0 0 8px var(--h3);
+  animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.hero h1 {
+  font-family: var(--brand);
+  font-weight: 400;
+  font-size: clamp(64px, 11.5vw, 188px);
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+}
+.hero h1 .w { display: inline-block; opacity: 0; transform: translateY(0.35em); animation: wordIn 0.9s var(--ease) forwards; }
+.hero h1 .w:nth-child(2) { animation-delay: 0.11s; }
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--h2), var(--h1) 40%, var(--h4) 75%, var(--h3));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+@keyframes wordIn { to { opacity: 1; transform: none; } }
+.hero-sub {
+  margin-top: 28px;
+  max-width: 560px;
+  font-size: clamp(17px, 1.6vw, 21px);
+  color: var(--paper-mute);
+  line-height: 1.5;
+}
+.hero-sub strong { color: var(--paper); font-weight: 500; }
+.hero-note {
+  margin-top: 22px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-note svg { width: 16px; height: 16px; }
+
+/* Table of contents — hairline list, not cards */
+.toc { list-style: none; border-top: 1px solid rgba(244,239,230,0.14); }
+.toc li { border-bottom: 1px solid rgba(244,239,230,0.14); }
+.toc a {
+  display: grid; grid-template-columns: 44px 1fr auto;
+  align-items: baseline; gap: 14px;
+  padding: 20px 4px;
+  transition: background 0.3s, padding 0.4s var(--ease);
+}
+.toc a:hover { padding-left: 14px; background: rgba(244,239,230,0.03); }
+.toc .n { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--paper-dim); font-variant-numeric: tabular-nums; }
+.toc .t { font-family: var(--display); font-size: clamp(20px, 1.9vw, 26px); letter-spacing: -0.01em; line-height: 1.15; }
+.toc .d { display: block; margin-top: 4px; font-family: var(--sans); font-size: 14px; color: var(--paper-mute); letter-spacing: 0; }
+.toc .arr { font-family: var(--mono); font-size: 14px; color: var(--paper-dim); transition: transform 0.4s var(--ease), color 0.3s; }
+.toc a:hover .arr { transform: translateX(4px); color: var(--paper); }
+.toc li:nth-child(1) .n { color: var(--h2); }
+.toc li:nth-child(2) .n { color: var(--h3); }
+.toc li:nth-child(3) .n { color: var(--h1); }
+.toc li:nth-child(4) .n { color: var(--h4); }
+
+@media (max-width: 960px) {
+  .hero { min-height: auto; padding-top: 120px; }
+  .hero-inner { grid-template-columns: 1fr; }
+}
+
+/* ── EXPERIMENTS ───────────────────────────────────────────── */
+.exp {
+  position: relative;
+  padding: clamp(80px, 12vh, 150px) 0;
+  border-top: 1px solid var(--ink-rule);
+  --accent: var(--h2);
+}
+.exp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 5vw, 88px);
+  align-items: start;
+}
+.exp.flip .exp-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.exp.flip .exp-copy { order: 2; }
+.exp.flip .exp-stage { order: 1; }
+.exp-copy { position: sticky; top: 110px; }
+.exp-num {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.exp-num::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+.exp h2 {
+  margin-top: 18px;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(34px, 4.2vw, 62px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+.exp h2 em { font-style: italic; color: var(--accent); }
+.exp-lede {
+  margin-top: 22px;
+  font-size: clamp(16px, 1.3vw, 18px);
+  color: var(--paper-mute);
+  max-width: 520px;
+}
+.exp-lede + .exp-lede { margin-top: 14px; }
+.exp-lede em { color: var(--paper); font-style: italic; }
+
+.controls { margin-top: 30px; display: flex; flex-direction: column; gap: 18px; }
+.ctl-label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-dim);
+  margin-bottom: 8px;
+}
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500;
+  background: var(--paper); color: var(--ink);
+  transition: background 0.3s, color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--accent); color: var(--ink); transform: translateY(-2px); }
+.btn:active { transform: translateY(1px) scale(0.985); }
+.btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--paper-dim); }
+.btn.ghost:hover { border-color: var(--paper); background: rgba(244,239,230,0.06); color: var(--paper); }
+.btn[aria-pressed="true"] { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+.btn .ico { width: 10px; height: 10px; display: inline-block; }
+.btn .ico.play { width: 0; height: 0; border-left: 9px solid currentColor; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; }
+.btn .ico.stop { background: currentColor; border-radius: 2px; }
+.btn .ico.rec  { background: var(--h1); border-radius: 50%; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.seg {
+  display: inline-flex; flex-wrap: wrap; gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(244,239,230,0.14);
+  border-radius: 24px;
+  background: rgba(244,239,230,0.03);
+}
+.seg button {
+  padding: 9px 14px;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--paper-mute);
+  transition: background 0.25s, color 0.25s;
+}
+.seg button:hover { color: var(--paper); }
+.seg button.on { background: var(--paper); color: var(--ink); }
+.seg select {
+  font: inherit; font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: transparent; color: var(--paper);
+  border: 0; padding: 8px 10px; border-radius: 100px;
+  cursor: pointer;
+}
+.seg select option { background: var(--ink); color: var(--paper); }
+
+/* Stage = the instrument panel */
+.stage {
+  position: relative;
+  border-radius: 22px;
+  background:
+    radial-gradient(90% 70% at 50% 0%, rgba(244,239,230,0.05), transparent 70%),
+    var(--ink-soft);
+  border: 1px solid rgba(244,239,230,0.09);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.stage-foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  gap: 12px 24px;
+  padding: 18px 22px;
+  border-top: 1px solid rgba(244,239,230,0.08);
+}
+.readout-label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.readout-chord {
+  font-family: var(--display);
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  min-height: 1em;
+  font-variant-numeric: tabular-nums;
+}
+.readout-colour { font-family: var(--sans); font-size: 14px; color: var(--paper-mute); font-style: italic; }
+.mono-note {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--paper-mute);
+  font-variant-numeric: tabular-nums;
+}
+.inline-msg {
+  display: none;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  border: 1px solid rgba(255,78,38,0.35);
+  background: rgba(255,78,38,0.08);
+  color: var(--paper);
+}
+.inline-msg.on { display: block; }
+.inline-msg.soft { border-color: rgba(244,239,230,0.14); background: rgba(244,239,230,0.04); color: var(--paper-mute); }
+
+/* ── 01 NEGATIVE HARMONY ─────────────────────────────────── */
+#negative { --accent: var(--h2); }
+.wheel-wrap { padding: clamp(18px, 3vw, 36px); display: grid; place-items: center; }
+#nhWheel { width: 100%; max-width: 560px; aspect-ratio: 1; overflow: visible; }
+#nhWheel .ring { fill: none; stroke: rgba(244,239,230,0.10); stroke-width: 1; }
+#nhWheel .axis { stroke: var(--h4); stroke-width: 1.2; stroke-dasharray: 5 6; opacity: 0.8; }
+#nhWheel .axis-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; fill: var(--h4); text-transform: uppercase; }
+#nhWheel .node { cursor: pointer; }
+#nhWheel .node circle { fill: var(--ink); stroke: rgba(244,239,230,0.22); stroke-width: 1; transition: fill 0.35s, stroke 0.35s, r 0.35s; }
+#nhWheel .node text { font-family: var(--sans); font-weight: 600; font-size: 15px; fill: var(--paper-mute); text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill 0.35s; }
+#nhWheel .node:hover circle { stroke: var(--paper); }
+#nhWheel .node.on circle { fill: var(--h2); stroke: var(--h2); }
+#nhWheel .node.on text { fill: var(--ink); }
+#nhWheel .node.ghost circle { stroke: var(--h4); stroke-dasharray: 3 3; }
+#nhWheel .node.ping circle { animation: ping 0.5s var(--ease); }
+@keyframes ping { 40% { stroke-width: 6; } }
+#nhWheel .poly { fill: url(#nhFill); stroke: var(--h2); stroke-width: 1.5; stroke-linejoin: round; }
+#nhWheel .poly.mirrored { stroke: var(--h4); }
+#nhWheel .hub { fill: #0C0C1A; opacity: 0.94; }
+#nhWheel .ghost-poly { fill: none; stroke: rgba(244,239,230,0.35); stroke-width: 1; stroke-dasharray: 4 5; stroke-linejoin: round; }
+#nhWheel .center-lbl { font-family: var(--display); font-size: 30px; fill: var(--paper); text-anchor: middle; dominant-baseline: central; letter-spacing: -0.02em; }
+#nhWheel .center-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; fill: var(--paper-dim); text-anchor: middle; text-transform: uppercase; }
+
+.prog-rows { padding: 16px 22px 20px; border-top: 1px solid rgba(244,239,230,0.08); display: grid; gap: 10px; }
+.prog-row { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; transition: opacity 0.3s; }
+.prog-row.dim { opacity: 0.45; }
+.prog-row .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-dim); }
+.prog-row.mirror .lbl { color: var(--h4); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid rgba(244,239,230,0.12);
+  font-family: var(--display); font-size: 17px; letter-spacing: -0.01em;
+  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.3s var(--ease);
+}
+.chip.now { background: var(--h2); color: var(--ink); border-color: var(--h2); transform: translateY(-2px); }
+.prog-row.mirror .chip.now { background: var(--h4); border-color: var(--h4); }
+
+/* ── 02 COMMA PUMP ───────────────────────────────────────── */
+#halfsharp { --accent: var(--h3); }
+.gauge { padding: clamp(22px, 3.2vw, 40px) clamp(20px, 3vw, 36px) 12px; }
+.gauge-big { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.gauge-key {
+  font-family: var(--brand); font-size: clamp(64px, 8vw, 120px); line-height: 0.9;
+  color: var(--paper);
+}
+.gauge-cents {
+  font-family: var(--mono); font-size: clamp(20px, 2.2vw, 30px);
+  color: var(--h3); font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.gauge-desc { font-family: var(--display); font-style: italic; font-size: 20px; color: var(--paper-mute); min-height: 1.3em; margin-top: 6px; }
+.ruler { position: relative; margin-top: 34px; height: 64px; }
+.ruler-track {
+  position: absolute; left: 0; right: 0; top: 28px; height: 6px; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(244,239,230,0.12), rgba(77,215,255,0.35) 50%, rgba(244,239,230,0.12));
+}
+.ruler-tick { position: absolute; top: 22px; width: 1px; height: 18px; background: rgba(244,239,230,0.35); }
+.ruler-tick.minor { top: 26px; height: 10px; background: rgba(244,239,230,0.18); }
+.ruler-lbl {
+  position: absolute; top: 46px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--paper-dim); white-space: nowrap;
+}
+.ruler-lbl.hot { color: var(--h3); }
+.needle {
+  position: absolute; top: 0; left: 0; width: 2px; height: 40px;
+  background: var(--paper);
+  box-shadow: 0 0 14px var(--h3);
+  border-radius: 2px;
+  transform: translateX(0);
+  transition: transform 0.9s var(--ease);
+}
+.needle::before {
+  content: ""; position: absolute; left: 50%; top: -6px; transform: translateX(-50%);
+  width: 10px; height: 10px; border-radius: 50%; background: var(--h3);
+}
+.stairs-wrap { padding: 8px clamp(20px, 3vw, 36px) 0; }
+#cpStairs { width: 100%; height: auto; display: block; overflow: visible; }
+#cpStairs .grid { stroke: rgba(244,239,230,0.07); stroke-width: 1; }
+#cpStairs .ref { stroke: rgba(244,239,230,0.35); stroke-dasharray: 3 5; stroke-width: 1; }
+#cpStairs .ref-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; fill: var(--paper-dim); text-transform: uppercase; }
+#cpStairs .step { fill: none; stroke: var(--h3); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+#cpStairs .step.et { stroke: rgba(244,239,230,0.55); }
+#cpStairs .lap-dot { fill: var(--h3); }
+#cpStairs .lap-lbl { font-family: var(--mono); font-size: 9px; fill: var(--paper-mute); text-anchor: middle; }
+.cp-chips { display: flex; gap: 8px; padding: 14px clamp(20px, 3vw, 36px) 22px; flex-wrap: wrap; }
+.cp-chip {
+  flex: 1 1 0; min-width: 76px;
+  padding: 10px 12px; border-radius: 14px;
+  border: 1px solid rgba(244,239,230,0.1);
+  transition: border-color 0.3s, background 0.3s, transform 0.4s var(--ease);
+}
+.cp-chip .nm { font-family: var(--display); font-size: 22px; line-height: 1; }
+.cp-chip .ct { margin-top: 6px; font-family: var(--mono); font-size: 10.5px; color: var(--paper-dim); font-variant-numeric: tabular-nums; }
+.cp-chip.now { border-color: var(--h3); background: rgba(77,215,255,0.08); transform: translateY(-3px); }
+.cp-chip.now .ct { color: var(--h3); }
+
+/* ── 03 AUDIENCE CHOIR ───────────────────────────────────── */
+#choir { --accent: var(--h1); }
+.crowd-wrap { position: relative; aspect-ratio: 16 / 11; min-height: 320px; }
+#crowd { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.crowd-hint {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-dim); pointer-events: none; transition: opacity 0.5s;
+  white-space: nowrap;
+}
+.crowd-hint.off { opacity: 0; }
+.sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid rgba(244,239,230,0.08); }
+.sec { padding: 14px 18px; border-right: 1px solid rgba(244,239,230,0.08); }
+.sec:last-child { border-right: 0; }
+.sec .who { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--paper-dim); display: flex; align-items: center; gap: 8px; }
+.sec .who i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); opacity: 0.35; transition: opacity 0.3s, box-shadow 0.3s; }
+.sec.singing .who i { opacity: 1; box-shadow: 0 0 10px var(--c); animation: breathe 1.6s ease-in-out infinite; }
+@keyframes breathe { 50% { box-shadow: 0 0 2px var(--c); } }
+.sec .nt { margin-top: 6px; font-family: var(--display); font-size: 24px; line-height: 1; color: var(--paper-dim); transition: color 0.3s; font-variant-numeric: tabular-nums; }
+.sec.singing .nt { color: var(--paper); }
+.sec .ct { margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--paper-dim); font-variant-numeric: tabular-nums; }
+
+/* ── 04 HARMONIZER ───────────────────────────────────────── */
+#harmonizer { --accent: var(--h4); }
+.roll-wrap { position: relative; aspect-ratio: 16 / 10; min-height: 300px; }
+#roll { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: ns-resize; }
+.roll-state {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; text-align: center;
+  padding: 24px;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.roll-state.off { opacity: 0; }
+.roll-state .big { font-family: var(--display); font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -0.01em; }
+.roll-state .small { margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-dim); }
+.meter { display: inline-flex; align-items: center; gap: 3px; height: 18px; }
+.meter i { width: 3px; height: 4px; border-radius: 2px; background: var(--paper-dim); transition: height 0.08s, background 0.2s; }
+.meter.live i { background: var(--h4); }
+.skeleton {
+  display: inline-block; width: 140px; height: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(244,239,230,0.06), rgba(244,239,230,0.16), rgba(244,239,230,0.06));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+.privacy { font-size: 13px; color: var(--paper-dim); display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+.privacy svg { flex: 0 0 auto; width: 14px; height: 14px; margin-top: 3px; }
+
+/* ── OUTRO ─────────────────────────────────────────────────── */
+.outro {
+  padding: clamp(90px, 14vh, 160px) var(--gutter);
+  border-top: 1px solid var(--ink-rule);
+  background:
+    radial-gradient(60% 80% at 20% 100%, rgba(180,136,255,0.14), transparent 70%),
+    radial-gradient(50% 70% at 90% 0%, rgba(255,184,74,0.1), transparent 70%);
+}
+.outro-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: end; }
+.outro h2 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 5vw, 76px); line-height: 1; letter-spacing: -0.02em; }
+.outro h2 em { font-style: italic; color: var(--h2); }
+.outro p { color: var(--paper-mute); font-size: 17px; margin-bottom: 22px; }
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer {
+  padding: 48px var(--gutter) 32px;
+  background: var(--ink);
+  border-top: 1px solid var(--ink-rule);
+}
+.foot-row {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; flex-wrap: wrap;
+  justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.foot-row .links { display: flex; gap: 28px; flex-wrap: wrap; }
+.foot-row a { transition: color 0.25s; }
+.foot-row a:hover { color: var(--paper); }
+
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 960px) {
+  .exp-grid, .exp.flip .exp-grid { grid-template-columns: 1fr; }
+  .exp.flip .exp-copy { order: 1; }
+  .exp.flip .exp-stage { order: 2; }
+  .exp-copy { position: static; }
+  .outro-inner { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .sections .sec { padding: 12px 12px; }
+  .sec .nt { font-size: 20px; }
+  .prog-row { grid-template-columns: 1fr; gap: 6px; }
+  .crowd-wrap { aspect-ratio: 4 / 5; }
+  .roll-wrap { aspect-ratio: 4 / 5; }
+  .cp-chip { min-width: 60px; padding: 8px 10px; }
+  .cp-chip .nm { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .reveal, .hero h1 .w { opacity: 1; transform: none; }
+}
+
+/* Drawer: never peeks out while closed; scrolls instead of overflowing on short screens */
+.mobile-drawer {
+  justify-content: safe center;
+  padding-top: 88px; padding-bottom: 40px;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s linear 0.45s;
+}
+.mobile-drawer.open { visibility: visible; transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s; }
+.mobile-drawer a { font-size: clamp(26px, 6vw, 46px); }
+</style>
+</head>
+<body>
+
+<div class="hero-grain" aria-hidden="true"></div>
+
+<header class="topbar" id="topbar">
+  <a href="index.html" class="brand">
+    <span class="brand-orb"></span>
+    <span>Jacob Collier</span>
+  </a>
+  <nav class="navlinks">
+    <a href="tour.html">On Tour</a>
+    <a href="index.html#discography">Music</a>
+    <a href="index.html#videos">Videos</a>
+    <a href="lab.html" class="here">Lab</a>
+    <a href="store.html">Store</a>
+    <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+    <a href="contact.html">Contact</a>
+    <a href="djesse.html">Djesse Archive</a>
+  </nav>
+  <a href="index.html#connect" class="nav-cta">Sign Up</a>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-drawer" id="drawer">
+  <a href="index.html">Home</a>
+  <a href="tour.html">On Tour</a>
+  <a href="index.html#discography">Music</a>
+  <a href="index.html#videos">Videos</a>
+  <a href="lab.html">Harmony Lab</a>
+  <a href="store.html">Store</a>
+  <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+  <a href="contact.html">Contact</a>
+  <a href="djesse.html">Djesse Archive</a>
+</div>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <svg class="hero-staff" id="heroStaff" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <div class="hero-inner">
+    <div>
+      <span class="eyebrow"><span class="blink"></span>Harmony Lab · 4 experiments</span>
+      <h1><span class="w">Harmony</span> <span class="w"><em>Lab</em></span></h1>
+      <p class="hero-sub">
+        Four playable toys built on the ideas Jacob keeps coming back to:
+        <strong>a mirror</strong>, <strong>a quarter-tone</strong>, <strong>a room full of strangers</strong>
+        and <strong>one voice becoming many</strong>.
+      </p>
+      <p class="hero-note">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 9.5v-2a5.5 5.5 0 0 1 11 0v2"/><rect x="1.5" y="9" width="3" height="5" rx="1"/><rect x="11.5" y="9" width="3" height="5" rx="1"/></svg>
+        Headphones on · everything is synthesized live, nothing is recorded
+      </p>
+    </div>
+    <ol class="toc">
+      <li><a href="#negative"><span class="n">01</span><span class="t">Negative harmony<span class="d">Flip any chord through the mirror.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#halfsharp"><span class="n">02</span><span class="t">G half-sharp<span class="d">Drift a choir a quarter-tone with pure tuning.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#choir"><span class="n">03</span><span class="t">Audience choir<span class="d">Conduct three sections of a crowd.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#harmonizer"><span class="n">04</span><span class="t">Harmonizer<span class="d">Sing one note, hear four.</span></span><span class="arr">↓</span></a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══ 01 NEGATIVE HARMONY ════════════════════════════════════ -->
+<section class="exp" id="negative">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">01 — Negative harmony</span>
+      <h2>Flip any chord <em>through the mirror.</em></h2>
+      <p class="exp-lede">
+        In a 2017 interview Jacob explained <em>negative harmony</em>, and a lot of people went back to their theory books.
+        The idea comes from Ernst Levy: draw an axis through the circle of fifths, between the tonic and the dominant, then reflect every note across it.
+      </p>
+      <p class="exp-lede">
+        Major turns minor. G7 turns into Fm6. The cadence still lands, but it feels like it happened underwater.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Progression · key of C</div>
+          <div class="seg" id="nhPresets" role="group" aria-label="Progression">
+            <button class="on" data-prog="twofive">ii – V – I</button>
+            <button data-prog="pop">I – V – vi – IV</button>
+            <button data-prog="amen">Amen</button>
+            <button data-prog="custom">Your chord</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="nhPlay" type="button"><span class="ico play"></span><span class="lbl">Play</span></button>
+          <button class="btn ghost" id="nhMirror" type="button" aria-pressed="false">Mirror</button>
+          <div class="seg" role="group" aria-label="Auto flip">
+            <button class="on" id="nhAuto" type="button" aria-pressed="true">Auto-flip each pass</button>
+          </div>
+        </div>
+        <p class="inline-msg soft" id="nhHint">Tap notes on the wheel to build your own chord (up to six). Play, then flip it.</p>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <div class="wheel-wrap">
+          <svg id="nhWheel" viewBox="-220 -220 440 440" role="img" aria-label="Circle of fifths with the negative-harmony axis"></svg>
+        </div>
+        <div class="prog-rows">
+          <div class="prog-row" id="nhRowOrig"><span class="lbl">Original</span><div class="chips" id="nhOrig"></div></div>
+          <div class="prog-row mirror dim" id="nhRowNeg"><span class="lbl">Mirror</span><div class="chips" id="nhNeg"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 02 G HALF-SHARP ════════════════════════════════════════ -->
+<section class="exp flip" id="halfsharp">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">02 — Microtonal drift</span>
+      <h2>How a choir sings its way into <em>G half-sharp.</em></h2>
+      <p class="exp-lede">
+        Jacob's arrangement of <em>In the Bleak Midwinter</em> famously visits G half-sharp, a key that sits in the crack between two piano keys.
+        One way a choir can get somewhere like that: <em>pure tuning</em>.
+      </p>
+      <p class="exp-lede">
+        Each chord here is tuned perfectly, with none of the piano's compromises, and every note two chords share is held dead still.
+        Loop G – D – Am – Em and the whole choir rises about 21.5 cents per lap. That's the syntonic comma. Two laps and a bit puts you a quarter-tone up.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Tuning</div>
+          <div class="seg" id="cpTuning" role="group" aria-label="Tuning">
+            <button class="on" data-tuning="just">Pure (drifts)</button>
+            <button data-tuning="et">Piano (stays put)</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="cpPlay" type="button"><span class="ico play"></span><span class="lbl">Sing the loop</span></button>
+          <button class="btn ghost" id="cpReset" type="button">Back to G</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <div class="gauge">
+          <div class="readout-label">Home key, each time the loop comes round</div>
+          <div class="gauge-big">
+            <span class="gauge-key" id="cpKey">G</span>
+            <span class="gauge-cents" id="cpCents">+0.0¢</span>
+          </div>
+          <div class="gauge-desc" id="cpDesc">Right where the piano is.</div>
+          <div class="mono-note" id="cpNow" style="margin-top:10px"></div>
+          <div class="ruler" id="cpRuler" aria-hidden="true">
+            <div class="ruler-track"></div>
+            <div class="needle" id="cpNeedle"></div>
+          </div>
+        </div>
+        <div class="stairs-wrap">
+          <svg id="cpStairs" viewBox="0 0 640 200" preserveAspectRatio="none" aria-label="Pitch drift per chord"></svg>
+        </div>
+        <div class="cp-chips" id="cpChips"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 AUDIENCE CHOIR ══════════════════════════════════════ -->
+<section class="exp" id="choir">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">03 — Audience choir</span>
+      <h2>Conduct <em>a whole room.</em></h2>
+      <p class="exp-lede">
+        At almost every show Jacob splits the crowd into sections, hands each one a note and stacks thousands of strangers into harmony.
+        Your turn.
+      </p>
+      <p class="exp-lede">
+        Press on a section to hand it a note. Higher on the stage means a higher note. Let go and they keep holding it. Then move to the next section.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Vowel · scale</div>
+          <div class="row">
+            <div class="seg" id="acVowel" role="group" aria-label="Vowel">
+              <button class="on" data-vowel="ah">Aah</button>
+              <button data-vowel="oo">Ooh</button>
+            </div>
+            <div class="seg" id="acScale" role="group" aria-label="Scale">
+              <button class="on" data-scale="major">Major</button>
+              <button data-scale="lydian">Lydian</button>
+              <button data-scale="dorian">Dorian</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="acDemo" type="button"><span class="ico play"></span><span class="lbl">Watch it done</span></button>
+          <button class="btn ghost" id="acHush" type="button">Let them breathe</button>
+        </div>
+        <p class="mono-note">Keys: 1 · 2 · 3 pick a section · ↑ ↓ move its note · Esc releases everyone</p>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <div class="crowd-wrap">
+          <canvas id="crowd" tabindex="0" aria-label="Audience choir. Press to give a section a note."></canvas>
+          <span class="crowd-hint" id="acHint">Press a section to start it singing</span>
+        </div>
+        <div class="sections" id="acSections"></div>
+        <div class="stage-foot">
+          <div>
+            <div class="readout-label">The room is singing</div>
+            <div class="readout-chord" id="acChord">Silence</div>
+          </div>
+          <div class="readout-colour" id="acColour">Waiting for a downbeat.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 04 HARMONIZER ══════════════════════════════════════════ -->
+<section class="exp flip" id="harmonizer">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">04 — Harmonizer</span>
+      <h2>Sing one note. <em>Hear four.</em></h2>
+      <p class="exp-lede">
+        Jacob's live rig includes a harmonizer built with Ben Bloomberg that turns one voice into a whole choir in real time.
+        This is a toy version: sing or hum into your mic and the page wraps diatonic harmony around you as you move.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Key · colour</div>
+          <div class="row">
+            <div class="seg"><select id="hzKey" aria-label="Key"></select></div>
+            <div class="seg" id="hzMode" role="group" aria-label="Harmony colour">
+              <button data-mode="triad">Triads</button>
+              <button data-mode="seventh">Sevenths</button>
+              <button class="on" data-mode="jacob">Jacob</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="hzMic" type="button"><span class="ico rec"></span><span class="lbl">Start the mic</span></button>
+          <button class="btn ghost" id="hzMonitor" type="button" aria-pressed="false">Hear myself</button>
+        </div>
+        <p class="inline-msg" id="hzError" role="alert"></p>
+        <p class="privacy">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+          Audio never leaves your browser. No mic? Drag up and down on the roll to sing with your finger. "Hear myself" is for headphones only.
+        </p>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <div class="roll-wrap">
+          <canvas id="roll" aria-label="Pitch roll. Your voice and the harmony voices over time."></canvas>
+          <div class="roll-state" id="hzState">
+            <div>
+              <div class="big">Start the mic, or drag here.</div>
+              <div class="small">Your pitch draws white · harmony draws in colour</div>
+            </div>
+          </div>
+        </div>
+        <div class="stage-foot">
+          <div>
+            <div class="readout-label">You + the choir</div>
+            <div class="readout-chord" id="hzChord">Silence</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="mono-note" id="hzNotes">no voice yet</span>
+            <span class="meter" id="hzMeter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ OUTRO ══════════════════════════════════════════════════ -->
+<section class="outro">
+  <div class="outro-inner reveal">
+    <h2>Now go hear <em>the real thing.</em></h2>
+    <div>
+      <p>Every experiment here is a sketch of something Jacob does for real, on stage, with actual humans. The records are where it all lives.</p>
+      <div class="row">
+        <a class="btn" href="index.html#discography">The records</a>
+        <a class="btn ghost" href="index.html">Play the homepage</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-row">
+    <span>© 2026 · Hajanga Records · Fan project</span>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="https://www.jacobcollier.com" target="_blank" rel="noopener">Official Site</a>
+      <a href="djesse.html">Djesse Archive</a>
+      <a href="store.html">Store</a>
+      <a href="tour.html">Tour</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const topbar = document.getElementById('topbar');
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+const menuBtn = document.getElementById('menuBtn');
+const drawer  = document.getElementById('drawer');
+menuBtn.addEventListener('click', () => {
+  menuBtn.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  menuBtn.classList.remove('open');
+  drawer.classList.remove('open');
+}));
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+<script src="harmony.js"></script>
+<script src="lab.js"></script>
+<script src="analytics.js"></script>
+</body>
+</html>

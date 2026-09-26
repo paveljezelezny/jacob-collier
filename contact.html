@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Jacob Collier</title>
+<meta name="description" content="Booking, press and everything else. The delightful humans of JC HQ will receive your message with open arms.">
+<meta name="theme-color" content="#050510">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caprasimo&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #050510;
+  --ink-soft:  #0C0C1A;
+  --ink-rule:  #1A1A2A;
+  --paper:     #F4EFE6;
+  --paper-mute:rgba(244,239,230,0.62);
+  --paper-dim: rgba(244,239,230,0.35);
+  --h1: #FF4E26;
+  --h2: #FFB84A;
+  --h3: #4DD7FF;
+  --h4: #B488FF;
+  --display: 'Caprasimo', 'Georgia', serif;
+  --sans:    'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+  --brand:   'Bagel Fat One', 'Caprasimo', system-ui, sans-serif;
+  --gutter: clamp(20px, 5vw, 64px);
+  --max:    1440px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+::selection { background: var(--h1); color: var(--paper); }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ── TOP BAR (shared with index) ───────────────────────────── */
+.topbar {
+  position: fixed; inset: 0 0 auto 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px var(--gutter);
+  background: linear-gradient(180deg, rgba(5,5,16,0.85), rgba(5,5,16,0));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.4s, padding 0.4s, border-color 0.4s;
+}
+.topbar.scrolled {
+  background: rgba(5,5,16,0.92);
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--ink-rule);
+}
+.brand {
+  font-family: var(--brand);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: 0.005em;
+  display: flex; align-items: center; gap: 12px;
+  color: var(--paper);
+}
+.brand-orb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: conic-gradient(var(--h1), var(--h2), var(--h3), var(--h4), var(--h1));
+  box-shadow: 0 0 12px var(--h1);
+  animation: orbspin 6s linear infinite;
+}
+@keyframes orbspin { to { transform: rotate(360deg); } }
+.navlinks {
+  display: flex; gap: 26px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+.navlinks a { transition: color 0.25s; position: relative; padding: 4px 0; }
+.navlinks a::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 0; height: 1px; background: var(--h1);
+  transition: width 0.3s;
+}
+.navlinks a:hover { color: var(--paper); }
+.navlinks a:hover::after { width: 100%; }
+.navlinks a.here { color: var(--paper); }
+.navlinks a.here::after { width: 100%; }
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 100px;
+  border: 1px solid var(--paper);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  transition: background 0.25s, color 0.25s;
+}
+.nav-cta:hover { background: var(--paper); color: var(--ink); }
+.menu-btn { display: none; }
+@media (max-width: 1080px) {
+  .navlinks, .nav-cta { display: none; }
+  .menu-btn {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 38px; height: 38px; gap: 5px;
+  }
+  .menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--paper); transition: transform 0.3s, opacity 0.3s; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+}
+.mobile-drawer {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  z-index: 99;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 18px;
+  padding: 0 var(--gutter);
+  transform: translateY(-100%);
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1);
+  overflow-y: auto;
+}
+.mobile-drawer.open { transform: translateY(0); }
+.mobile-drawer a {
+  font-family: var(--display);
+  font-size: clamp(28px, 7vw, 52px);
+  letter-spacing: -0.02em;
+}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 62vh; min-height: 62dvh;
+  display: flex; align-items: flex-end;
+  padding: 140px var(--gutter) clamp(48px, 8vh, 88px);
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(70% 55% at 85% 20%, rgba(180,136,255,0.30) 0%, transparent 60%),
+    radial-gradient(60% 50% at 10% 90%, rgba(255,78,38,0.26) 0%, transparent 60%),
+    linear-gradient(180deg, #050510 0%, #0A0A22 60%, #14102A 100%);
+}
+.hero-grain {
+  position: absolute; inset: 0; z-index: -1;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+}
+.hero-inner { max-width: var(--max); margin: 0 auto; width: 100%; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 9px 16px;
+  background: rgba(5,5,16,0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(244,239,230,0.18);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-mute);
+  margin-bottom: 28px;
+}
+.hero-eyebrow .blink {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--h1); box-shadow: 0 0 8px var(--h1);
+  animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.hero h1 {
+  font-family: var(--brand);
+  font-weight: 400;
+  font-size: clamp(56px, 11vw, 160px);
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--h1), var(--h2), var(--h3), var(--h4));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.hero p.lede {
+  margin-top: 24px;
+  font-family: var(--display);
+  font-size: clamp(17px, 2vw, 24px);
+  color: var(--paper-mute);
+  max-width: 580px;
+  line-height: 1.45;
+}
+
+/* ── CONTACT CARDS ─────────────────────────────────────────── */
+.contacts { padding: clamp(56px, 9vh, 110px) 0 clamp(72px, 11vh, 130px); }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 20px;
+}
+.card {
+  position: relative;
+  border: 1px solid var(--ink-rule);
+  border-radius: 24px;
+  background: var(--ink-soft);
+  padding: clamp(26px, 3vw, 40px);
+  display: flex; flex-direction: column; gap: 18px;
+  transition: transform 0.35s, border-color 0.35s, box-shadow 0.35s;
+  overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute; inset: 0 auto auto 0;
+  width: 100%; height: 3px;
+  background: var(--accent, var(--h1));
+  opacity: 0.85;
+}
+.card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(244,239,230,0.25);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+.card .tag {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent, var(--h1));
+}
+.card h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(24px, 2.6vw, 34px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.card p { color: var(--paper-mute); font-size: 15px; }
+.card p em { color: var(--paper); font-style: italic; font-family: var(--display); }
+.people { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+.person {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--ink-rule);
+  border-radius: 14px;
+  background: rgba(244,239,230,0.03);
+  transition: border-color 0.25s, background 0.25s;
+  cursor: pointer;
+  text-align: left;
+}
+.person:hover { border-color: var(--accent, var(--h1)); background: rgba(244,239,230,0.06); }
+.person .who { display: flex; flex-direction: column; min-width: 0; }
+.person .name { font-weight: 600; font-size: 15px; }
+.person .mail {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--paper-mute);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.person .copy {
+  flex: 0 0 auto;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+  border: 1px solid var(--ink-rule);
+  border-radius: 100px;
+  padding: 6px 12px;
+  transition: color 0.25s, border-color 0.25s;
+}
+.person:hover .copy { color: var(--paper); border-color: var(--paper-dim); }
+.person.copied .copy { color: var(--ink); background: var(--h2); border-color: var(--h2); }
+
+/* ── CTA STRIP ─────────────────────────────────────────────── */
+.cta-strip {
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  background: var(--ink-soft);
+  border-top: 1px solid var(--ink-rule);
+  text-align: center;
+}
+.cta-strip h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 60px);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+.cta-strip h2 em { font-style: italic; color: var(--h1); }
+.cta-strip p {
+  font-family: var(--display); font-style: italic;
+  font-size: clamp(16px, 1.8vw, 20px);
+  color: var(--paper-mute);
+  max-width: 540px; margin: 0 auto 32px;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 28px;
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500;
+  background: var(--paper); color: var(--ink);
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+.btn:hover { background: var(--h1); color: var(--paper); transform: translateY(-2px); }
+.btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--paper-dim); }
+.btn.ghost:hover { border-color: var(--paper); background: var(--paper); color: var(--ink); }
+.cta-row { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer {
+  padding: 48px var(--gutter) 32px;
+  background: var(--ink);
+  border-top: 1px solid var(--ink-rule);
+}
+.foot-row {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; flex-wrap: wrap;
+  justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.foot-row .links { display: flex; gap: 28px; flex-wrap: wrap; }
+.foot-row a { transition: color 0.25s; }
+.foot-row a:hover { color: var(--paper); }
+
+/* ── Toast & reveal ────────────────────────────────────────── */
+.toast {
+  position: fixed; left: 50%; bottom: 28px;
+  transform: translate(-50%, 80px);
+  background: var(--paper); color: var(--ink);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 12px 22px; border-radius: 100px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  z-index: 200; pointer-events: none;
+}
+.toast.show { transform: translate(-50%, 0); }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+.nav-new::before {
+  content: ""; position: absolute; right: -9px; top: 2px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--h2); box-shadow: 0 0 8px var(--h2);
+}
+
+/* Drawer: never peeks out while closed; scrolls instead of overflowing on short screens */
+.mobile-drawer {
+  justify-content: safe center;
+  padding-top: 88px; padding-bottom: 40px;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s linear 0.45s;
+}
+.mobile-drawer.open { visibility: visible; transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s; }
+.mobile-drawer a { font-size: clamp(26px, 6vw, 46px); }
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <a href="index.html" class="brand">
+    <span class="brand-orb"></span>
+    <span>Jacob Collier</span>
+  </a>
+  <nav class="navlinks">
+    <a href="tour.html">On Tour</a>
+    <a href="index.html#discography">Music</a>
+    <a href="index.html#videos">Videos</a>
+    <a href="lab.html" class="nav-new">Lab</a>
+    <a href="store.html">Store</a>
+    <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+    <a href="contact.html" class="here">Contact</a>
+    <a href="djesse.html">Djesse Archive</a>
+  </nav>
+  <a href="index.html#connect" class="nav-cta">Sign Up</a>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-drawer" id="drawer">
+  <a href="tour.html">On Tour</a>
+  <a href="index.html#discography">Music</a>
+  <a href="index.html#videos">Videos</a>
+  <a href="lab.html">Harmony Lab</a>
+  <a href="store.html">Store</a>
+  <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+  <a href="contact.html">Contact</a>
+  <a href="index.html#connect">Sign Up</a>
+  <a href="djesse.html">Djesse Archive</a>
+</div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-inner">
+    <span class="hero-eyebrow"><span class="blink"></span>JC HQ · Open arms</span>
+    <h1>Say <em>hello.</em></h1>
+    <p class="lede">Booking, press, or anything else under the sun — the delightful humans of JC HQ will receive your message with open arms.</p>
+  </div>
+</section>
+
+<section class="contacts">
+  <div class="wrap">
+    <div class="cards">
+
+      <article class="card reveal" style="--accent: var(--h1)">
+        <span class="tag">Booking</span>
+        <h2>Live &amp; touring</h2>
+        <p>For all booking inquiries, reach out to the <em>mellifluous</em> James Wright and all-around badass Noah Simon at United Talent.</p>
+        <div class="people">
+          <button class="person" data-mail="James.Wright@unitedtalent.com">
+            <span class="who"><span class="name">James Wright</span><span class="mail">James.Wright@unitedtalent.com</span></span>
+            <span class="copy">Copy</span>
+          </button>
+          <button class="person" data-mail="Noah.Simon@unitedtalent.com">
+            <span class="who"><span class="name">Noah Simon</span><span class="mail">Noah.Simon@unitedtalent.com</span></span>
+            <span class="copy">Copy</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="card reveal" style="--accent: var(--h3)">
+        <span class="tag">Press / PR</span>
+        <h2>Media inquiries</h2>
+        <p>The <em>stupendous</em> Chris Taillie holds down the USA, and the sensational Joe Baxter takes care of the UK.</p>
+        <div class="people">
+          <button class="person" data-mail="ctaillie@shorefire.com">
+            <span class="who"><span class="name">Chris Taillie · USA</span><span class="mail">ctaillie@shorefire.com</span></span>
+            <span class="copy">Copy</span>
+          </button>
+          <button class="person" data-mail="joe@baxterpr.com">
+            <span class="who"><span class="name">Joe Baxter · UK</span><span class="mail">joe@baxterpr.com</span></span>
+            <span class="copy">Copy</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="card reveal" style="--accent: var(--h2)">
+        <span class="tag">Everything else</span>
+        <h2>JC HQ</h2>
+        <p>For all other inquiries, send a note — the team reads <em>everything</em> and will get back to you as soon as humanly possible.</p>
+        <div class="people">
+          <button class="person" data-mail="HQ@jacobcollier.com">
+            <span class="who"><span class="name">JC HQ</span><span class="mail">HQ@jacobcollier.com</span></span>
+            <span class="copy">Copy</span>
+          </button>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Prefer to just <em>listen?</em></h2>
+  <p>Six records, one arc — or catch the next show somewhere on four continents.</p>
+  <div class="cta-row">
+    <a href="index.html#discography" class="btn">The music</a>
+    <a href="tour.html" class="btn ghost">Tour dates</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-row">
+    <span>© 2026 · Hajanga Records · Fan project</span>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="https://www.jacobcollier.com" target="_blank" rel="noopener">Official Site</a>
+      <a href="djesse.html">Djesse Archive</a>
+      <a href="https://jacobcolliershideaway.com/" target="_blank" rel="noopener">Hideaway Retreat</a>
+      <a href="tour.html">All Tour Dates</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+const topbar = document.getElementById('topbar');
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+const menuBtn = document.getElementById('menuBtn');
+const drawer  = document.getElementById('drawer');
+menuBtn.addEventListener('click', () => {
+  menuBtn.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  menuBtn.classList.remove('open');
+  drawer.classList.remove('open');
+}));
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* Click a person → copy their email. Double-click → open mail client. */
+const toast = document.getElementById('toast');
+let toastTimer;
+document.querySelectorAll('.person').forEach(p => {
+  p.addEventListener('click', async () => {
+    const mail = p.dataset.mail;
+    try {
+      await navigator.clipboard.writeText(mail);
+      p.classList.add('copied');
+      p.querySelector('.copy').textContent = 'Copied ✓';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+        p.classList.remove('copied');
+        p.querySelector('.copy').textContent = 'Copy';
+      }, 1800);
+    } catch {
+      window.location.href = 'mailto:' + mail;
+    }
+  });
+  p.addEventListener('dblclick', () => { window.location.href = 'mailto:' + p.dataset.mail; });
+});
+</script>
+
+<script src="analytics.js"></script>
+</body>
+</html>

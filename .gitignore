@@ -1,0 +1,9 @@
+.DS_Store
+.claude/
+# local-only: backups, dev tools, tests and review records never go to the public site
+_backup_*/
+_tools/
+tests/
+docs/
+# old unmaintained beta, kept locally only
+jacob_collier_web.html
