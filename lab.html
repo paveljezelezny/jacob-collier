@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Harmony Lab — Jacob Collier</title>
-<meta name="description" content="Four playable harmony experiments: flip chords through the negative-harmony mirror, drift a choir into G half-sharp, conduct an audience choir, and sing into a live harmonizer.">
+<meta name="description" content="Seven playable harmony experiments: flip chords through the negative-harmony mirror, drift a choir into G half-sharp, conduct an audience choir, sing into a harmonizer, loop a split-screen band, spin new chords under an old tune and conduct a pocket orchestra.">
 <meta property="og:title" content="Harmony Lab — Jacob Collier fan site">
-<meta property="og:description" content="Mirror chords, drift into G half-sharp, conduct a crowd, sing into a harmonizer. All synthesized live in your browser.">
+<meta property="og:description" content="Mirror chords, drift into G half-sharp, conduct a crowd, sing into a harmonizer, be a whole split-screen band, reharmonize Twinkle Twinkle and conduct Ode to Joy. All synthesized live in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://paveljezelezny.github.io/jacob-collier/og-image.png">
 <meta property="og:url" content="https://paveljezelezny.github.io/jacob-collier/lab.html">
@@ -253,6 +253,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .toc li:nth-child(2) .n { color: var(--h3); }
 .toc li:nth-child(3) .n { color: var(--h1); }
 .toc li:nth-child(4) .n { color: var(--h4); }
+.toc li:nth-child(5) .n { color: var(--h1); }
+.toc li:nth-child(6) .n { color: var(--h3); }
+.toc li:nth-child(7) .n { color: var(--h2); }
 
 @media (max-width: 960px) {
   .hero { min-height: auto; padding-top: 120px; }
@@ -321,11 +324,18 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   transition: background 0.3s, color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
   white-space: nowrap;
 }
-.btn:hover { background: var(--accent); color: var(--ink); transform: translateY(-2px); }
+/* Hover looks only where there is a real pointer: touch browsers keep :hover on the
+   last thing tapped, which would hide a toggle's pressed state until you tap elsewhere */
+@media (hover: hover) {
+  .btn:hover { background: var(--accent); color: var(--ink); transform: translateY(-2px); }
+}
 .btn:active { transform: translateY(1px) scale(0.985); }
 .btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--paper-dim); }
-.btn.ghost:hover { border-color: var(--paper); background: rgba(244,239,230,0.06); color: var(--paper); }
-.btn[aria-pressed="true"] { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+@media (hover: hover) {
+  .btn.ghost:hover { border-color: var(--paper); background: rgba(244,239,230,0.06); color: var(--paper); }
+}
+/* Pressed wins over hover (same weight as .btn.ghost:hover, and later) */
+.btn[aria-pressed="true"], .btn[aria-pressed="true"]:hover { background: var(--accent); color: var(--ink); border-color: var(--accent); }
 .btn .ico { width: 10px; height: 10px; display: inline-block; }
 .btn .ico.play { width: 0; height: 0; border-left: 9px solid currentColor; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; }
 .btn .ico.stop { background: currentColor; border-radius: 2px; }
@@ -347,7 +357,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--paper-mute);
   transition: background 0.25s, color 0.25s;
 }
-.seg button:hover { color: var(--paper); }
+@media (hover: hover) { .seg button:hover { color: var(--paper); } }
 .seg button.on { background: var(--paper); color: var(--ink); }
 .seg select {
   font: inherit; font-family: var(--mono); font-size: 10.5px;
@@ -408,6 +418,18 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 .inline-msg.on { display: block; }
 .inline-msg.soft { border-color: rgba(244,239,230,0.14); background: rgba(244,239,230,0.04); color: var(--paper-mute); }
+/* A game's status line lives in its stage, next to what you just did (05–07) */
+.stage > .inline-msg { margin: 0 18px 14px; scroll-margin: 84px 0 16px; }
+/* Copy-link fallback: the address to copy by hand */
+/* The label's words come from CSS (LabUI.share), so the games' textContent checks never see them */
+.inline-msg .share-label { display: block; color: var(--paper); }
+.inline-msg .share-label::before { content: attr(data-text); }
+.inline-msg .share-url {
+  display: block; width: 100%; margin-top: 8px;
+  padding: 8px 10px; border-radius: 8px;
+  border: 1px solid rgba(244,239,230,0.2); background: rgba(5,5,16,0.5);
+  font-family: var(--mono); font-size: 11px; color: var(--paper);
+}
 
 /* ── 01 NEGATIVE HARMONY ─────────────────────────────────── */
 #negative { --accent: var(--h2); }
@@ -530,6 +552,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* ── 04 HARMONIZER ───────────────────────────────────────── */
 #harmonizer { --accent: var(--h4); }
+#split { --accent: var(--h1); }
+#reels { --accent: var(--h3); }
+#downbeat { --accent: var(--h2); }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 .roll-wrap { position: relative; aspect-ratio: 16 / 10; min-height: 300px; }
 #roll { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: ns-resize; }
 .roll-state {
@@ -591,10 +620,12 @@ footer {
 .reveal.in { opacity: 1; transform: none; }
 
 @media (max-width: 960px) {
-  .exp-grid, .exp.flip .exp-grid { grid-template-columns: 1fr; }
-  .exp.flip .exp-copy { order: 1; }
-  .exp.flip .exp-stage { order: 2; }
-  .exp-copy { position: static; }
+  /* One column: heading and intro, then the instrument, then its controls,
+     so a phone sees what it's playing without scrolling past every button */
+  .exp-grid, .exp.flip .exp-grid { grid-template-columns: 1fr; gap: 0; }
+  .exp-copy { display: contents; }
+  .exp .exp-stage, .exp.flip .exp-stage { order: 1; margin-top: 28px; }
+  .exp .exp-copy > .controls { order: 2; }
   .outro-inner { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
@@ -607,6 +638,8 @@ footer {
   .cp-chip .nm { font-size: 19px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* 'auto' scrolls (fragment links, the games' scrollIntoView) jump instead of gliding */
+  html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .reveal, .hero h1 .w { opacity: 1; transform: none; }
 }
@@ -620,6 +653,409 @@ footer {
 }
 .mobile-drawer.open { visibility: visible; transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s; }
 .mobile-drawer a { font-size: clamp(26px, 6vw, 46px); }
+
+/* ── 05 SPLIT SCREEN (ss-) ─────────────────────────────── */
+/* ── 05 SPLIT SCREEN ─────────────────────────────────────── */
+.ss-grid-wrap { position: relative; padding: 16px 16px 2px; }
+#ssGrid { display: block; width: 100%; height: 240px; }
+.ss-tiles { position: absolute; left: 16px; top: 16px; }
+.ss-tile {
+  position: absolute;
+  border-radius: 10px;
+  background: transparent;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.ss-tile:focus-visible { border-radius: 10px; outline-offset: 2px; }
+.ss-hint {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content; max-width: calc(100% - 48px);
+  padding: 10px 16px;
+  border-radius: 100px;
+  border: 1px solid rgba(244,239,230,0.16);
+  background: rgba(5,5,16,0.86);
+  font-size: 13px; line-height: 1.35; text-align: center;
+  text-wrap: balance;
+  color: var(--paper);
+  pointer-events: none;
+  transition: opacity 0.4s, visibility 0s linear 0.4s;
+}
+.ss-hint.off { opacity: 0; visibility: hidden; }
+
+.ss-pads {
+  --ss-line: rgba(255,184,74,0.4);
+  --ss-hit: rgba(255,184,74,0.22);
+  display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px;
+  padding: 14px 18px;
+  touch-action: none;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.ss-pad {
+  position: relative;
+  min-height: 64px; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  padding: 6px 2px;
+  border-radius: 16px;
+  border: 1px solid var(--ss-line);
+  background: rgba(244,239,230,0.04);
+  touch-action: none;
+  transition: background 0.12s;
+}
+@media (hover: hover) { .ss-pad:hover { background: rgba(244,239,230,0.07); } }
+.ss-pad.hit { background: var(--ss-hit); transition: none; }
+.ss-pad:focus-visible { border-radius: 16px; outline-offset: 2px; }
+.ss-pad:disabled { opacity: 0.45; cursor: not-allowed; }
+.ss-pad.colour::after {
+  content: ""; position: absolute; inset: 3px;
+  border-radius: 13px;
+  border: 1px solid rgba(180,136,255,0.5);
+  pointer-events: none;
+}
+.ss-pad .n { font-family: var(--display); font-size: 20px; line-height: 1; letter-spacing: -0.01em; color: var(--paper); white-space: nowrap; }
+.ss-pad.beat .n { font-size: 14px; letter-spacing: 0; white-space: normal; text-align: center; line-height: 1.05; }
+.ss-pad .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper-dim); }
+.ss-foot-r { display: grid; gap: 4px; text-align: right; }
+#ssRec[aria-pressed='true'] .ico.rec { background: var(--ink); }
+#split .btn.nudge { animation: ss-nudge 1.8s ease-in-out 4; }
+@keyframes ss-nudge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,78,38,0); }
+  50% { box-shadow: 0 0 0 1px var(--h1), 0 0 18px rgba(255,78,38,0.35); border-color: var(--h1); }
+}
+/* The stage is much shorter than the copy here: let it ride along with the controls */
+@media (min-width: 961px) and (min-height: 700px) {
+  #split .exp-stage { position: sticky; top: 90px; align-self: start; }
+}
+@media (max-width: 560px) {
+  .ss-grid-wrap { padding: 12px 12px 2px; }
+  .ss-tiles { left: 12px; top: 12px; }
+  .ss-pads { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 14px 12px; }
+  .ss-foot-r { text-align: left; }
+  /* On the 2 × 3 grid the middle is a label row (MALLETS … YOU): sit on the bottom row's rolls instead */
+  .ss-hint { top: auto; bottom: 12px; transform: translateX(-50%); max-width: calc(100% - 40px); font-size: 12px; border-radius: 16px; }
+  #split .stage > .inline-msg { margin: 0 12px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #split .btn.nudge { box-shadow: 0 0 0 1px var(--h1); border-color: var(--h1); }
+}
+
+/* ── 06 REHARM REELS (rr-) ─────────────────────────────── */
+/* ── 06 REHARM REELS ──────────────────────────────────────── */
+/* Every selector sits under #reels. The reel markup keeps the spec's short
+   class names (.reel, .reel-win, .ghost …), so the scope keeps them local. */
+#reels .exp-stage { container: rr / inline-size; }
+/* The five spice levels keep their names and still fit one row of the desktop column */
+@media (min-width: 961px) { #reels #rrSpice button { padding: 9px 8px; letter-spacing: 0.06em; } }
+#reels .rr-lane { display: block; width: calc(100% - 44px); height: 110px; margin: 22px 22px 0; overflow: visible; }
+#reels .rr-lane .rr-band { fill: var(--accent); fill-opacity: 0; transition: fill-opacity 0.2s; }
+#reels .rr-lane .rr-band.now { fill-opacity: 0.06; }
+#reels .rr-lane .rr-sep { stroke: rgba(244,239,230,0.1); stroke-width: 1; vector-effect: non-scaling-stroke; }
+#reels .rr-lane .rr-note { fill: rgba(244,239,230,0.45); transition: fill 0.15s; }
+#reels .rr-lane .rr-note.now { fill: var(--accent); }
+
+/* Reels: 8 in a row, so each sits under its bar of the tune. A laptop stage (600–700 px)
+   keeps the row with the phone's tighter gutters, about 66–72 px a reel; only a narrower
+   stage goes 4 × 2. The lane and thread share the gutter so the slots stay lined up. */
+#reels .rr-reels {
+  display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px; padding: 22px 22px 0;
+}
+/* Spin · Play · Before sit right under the reels, so a phone can spin and watch at once */
+#reels .rr-actions { padding: 18px 22px 0; }
+#reels .stage > .inline-msg { margin: 16px 22px 0; }
+@container rr (max-width: 700px) {
+  #reels .rr-lane { width: calc(100% - 28px); margin: 22px 14px 0; }
+  #reels .rr-reels { gap: 6px; padding: 22px 14px 0; }
+  #reels .rr-actions { padding: 18px 14px 0; }
+  #reels .stage > .inline-msg { margin: 16px 14px 0; }
+  #reels .rr-thread-wrap { padding: 18px 14px 0; }
+  #reels .rr-legend { padding: 14px 14px 0; }
+  #reels .rr-history { padding: 16px 14px 18px; }
+}
+@container rr (max-width: 600px) {
+  #reels .rr-reels { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 14px; }
+}
+#reels .reel {
+  --fam: rgba(244,239,230,0.5);
+  position: relative; min-width: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: transform 0.3s var(--ease);
+}
+#reels .reel.now { transform: translateY(-4px); }
+#reels .reel-win {
+  position: relative; display: block; width: 100%; height: 96px;
+  overflow: hidden; border-radius: 12px;
+  border: 1px solid var(--fam);
+  background: rgba(244,239,230,0.03);
+  touch-action: manipulation;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+#reels .reel-win::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: var(--fam); z-index: 1; transition: background 0.25s;
+}
+@media (hover: hover) { #reels .reel-win:hover { background: rgba(244,239,230,0.06); } }
+#reels .reel-win:focus-visible { border-radius: 12px; }
+#reels .reel.now .reel-win { box-shadow: 0 0 0 2px var(--ink-soft), 0 0 0 4px var(--accent); }
+/* Locked: the border stays in the family colour (Borrowed is this section's cyan too);
+   a filled padlock sits in the window's corner and the face lifts a shade */
+#reels .reel.locked .reel-win { background: rgba(244,239,230,0.07); }
+#reels .rr-lockmark {
+  position: absolute; top: 8px; left: 7px; z-index: 2;
+  width: 12px; height: 12px; color: var(--paper);
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+#reels .rr-lockmark svg { display: block; width: 12px; height: 12px; }
+#reels .rr-lockmark svg .body { fill: currentColor; }
+#reels .reel.locked .rr-lockmark { opacity: 1; }
+#reels .reel.locked .reel-strip > .ghost:first-child { padding-left: 20px; }   /* a long name clears the padlock */
+#reels .reel.rr-flash .reel-win { border-color: var(--paper); }
+#reels .reel.rr-flash .reel-win::before { background: var(--paper); }
+
+#reels .reel-strip {
+  position: absolute; left: 0; right: 0; top: 3px;
+  display: flex; flex-direction: column; align-items: stretch;
+  pointer-events: none;
+}
+#reels .reel-strip.rr-spinning { transition: transform 420ms cubic-bezier(0.2, 0.9, 0.2, 1); }
+#reels .reel-strip.rr-tick { transition: transform 160ms var(--ease); }
+#reels .reel-strip .ghost {
+  flex: 0 0 auto; height: 20px; line-height: 20px; padding: 0 6px;
+  font-family: var(--sans); font-size: 12px; text-align: center; color: var(--paper);
+  opacity: 0.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#reels .reel-strip .cur {
+  flex: 0 0 auto; height: 52px; padding: 0 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--paper);
+}
+#reels .reel-strip .root { font-family: var(--display); font-size: 28px; line-height: 1; letter-spacing: -0.02em; white-space: nowrap; }
+#reels .reel-strip .q {
+  margin-top: 4px; max-width: 100%; min-height: 12px;
+  font-family: var(--mono); font-size: 10px; line-height: 12px; letter-spacing: 0.02em;
+  color: var(--paper-mute);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#reels .reel.before .ghost { visibility: hidden; }
+#reels .rr-tag {
+  position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%);
+  padding: 1px 6px; border-radius: 100px;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink); background: var(--accent);
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+#reels .reel.before .rr-tag { opacity: 1; }
+#reels .rr-dot {
+  position: absolute; top: 9px; right: 7px; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+  opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 2;
+}
+#reels .reel.pending .rr-dot { opacity: 1; }
+#reels .reel-win.land { animation: rrLand 120ms ease-out; }
+@keyframes rrLand { from { transform: scale(1.04); } to { transform: none; } }
+
+#reels .reel-lock {
+  height: 36px; width: 100%;
+  display: grid; place-items: center;
+  border-radius: 10px; border: 1px solid rgba(244,239,230,0.14);
+  color: var(--paper-dim);
+  touch-action: manipulation;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#reels .reel-lock:hover { color: var(--paper); border-color: var(--paper-dim); }
+#reels .reel-lock svg { width: 14px; height: 14px; }
+#reels .reel-lock svg .body { fill: none; transition: fill 0.2s; }
+#reels .reel-lock[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: rgba(77,215,255,0.08); }
+#reels .reel-lock[aria-pressed="true"] svg .body { fill: currentColor; }
+
+/* Thread: the three upper voices, slot by slot */
+#reels .rr-thread-wrap { padding: 18px 22px 0; }
+#reels .rr-thread-wrap .readout-label { display: block; margin-bottom: 4px; }
+#rrThread { display: block; width: 100%; height: 60px; overflow: visible; }
+#rrThread .rr-v { fill: none; stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+#rrThread .rr-d { fill: none; stroke-width: 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+#rrThread .rr-v1 { stroke: rgba(244,239,230,0.25); }
+#rrThread .rr-v2 { stroke: rgba(244,239,230,0.40); }
+#rrThread .rr-v3 { stroke: rgba(244,239,230,0.55); }
+
+#reels .rr-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  padding: 14px 22px 0;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+#reels .rr-legend span { display: inline-flex; align-items: center; gap: 7px; }
+#reels .rr-legend i { width: 12px; height: 10px; border-radius: 3px; border: 1px solid var(--fam); box-shadow: inset 0 2px 0 var(--fam); }
+
+#reels .rr-history {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 16px 22px 18px;
+}
+#reels .rr-history .readout-label { flex-basis: 100%; }
+#reels .rr-bar {
+  display: inline-flex; align-items: center; gap: 2px;
+  height: 30px; padding: 0 8px;
+  border-radius: 8px; border: 1px solid rgba(244,239,230,0.14);
+  touch-action: manipulation;
+  transition: border-color 0.2s, background 0.2s, transform 0.25s var(--ease);
+}
+@media (hover: hover) { #reels button.rr-bar:hover { border-color: var(--paper-dim); background: rgba(244,239,230,0.05); transform: translateY(-1px); } }
+#reels .rr-bar i { width: 3px; height: 14px; border-radius: 1px; background: var(--fam); }
+#reels .rr-bar.empty { border-style: dashed; border-color: rgba(244,239,230,0.08); width: 58px; }
+
+#reels .rr-foot-r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+#reels .rr-pips-row { display: flex; align-items: center; gap: 10px; }
+#reels .rr-pips { display: inline-flex; gap: 5px; }
+#reels .rr-pips i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--paper-dim); transition: background 0.3s, border-color 0.3s; }
+#reels .rr-pips i.on { background: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 560px) {
+  #reels .rr-lane { height: 84px; width: calc(100% - 28px); margin: 18px 14px 0; }
+  #reels .rr-reels { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 18px 14px 0; gap: 6px; row-gap: 12px; }  /* also without container queries */
+  #reels .reel-lock { height: 44px; }
+  /* three equal buttons under the reels instead of 2 + an orphan */
+  #reels .rr-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 14px 0; }
+  #reels .rr-actions .btn { justify-content: center; padding: 14px 8px; }
+  #reels .stage > .inline-msg { margin: 14px 14px 0; }
+  #reels .reel-strip .ghost { font-size: 11px; padding: 0 4px; }
+  #reels .rr-thread-wrap { padding: 16px 14px 0; }
+  #rrThread { height: 40px; }
+  #reels .rr-legend { padding: 12px 14px 0; gap: 6px 12px; }
+  #reels .rr-history { padding: 14px 14px 16px; gap: 6px; }
+  #reels .rr-bar.empty { width: 54px; }
+  #reels .rr-foot-r { align-items: flex-start; text-align: left; }
+}
+
+/* ── 07 DOWNBEAT (db-) ─────────────────────────────── */
+/* ── 07 DOWNBEAT ─────────────────────────────────────────── */
+/* .seg sets display, which would beat the hidden attribute */
+#downbeat .seg[hidden], .db-review[hidden], #dbTheirs[hidden] { display: none; }
+#downbeat .stage > .inline-msg { margin: 14px 18px; }
+
+/* score ribbon: 16 bars × 4 beats; widths are the real beat lengths.
+   The bar numbers get their own 14 px strip above it, so a loud beat is never covered */
+.db-score-wrap { position: relative; height: 86px; padding-top: 14px; border-bottom: 1px solid rgba(244,239,230,0.08); }
+.db-score { display: block; width: 100%; height: 72px; }
+.db-score rect { vector-effect: non-scaling-stroke; }
+.db-score .db-tick { stroke: rgba(244,239,230,0.12); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.db-score .db-b  { fill: rgba(244,239,230,0.07); }
+.db-score .db-l0 { fill: var(--h4);    fill-opacity: 0.6; }
+.db-score .db-l1 { fill: var(--paper); fill-opacity: 0.6; }
+.db-score .db-l2 { fill: var(--h3);    fill-opacity: 0.6; }
+.db-score .db-l3 { fill: var(--h1);    fill-opacity: 0.6; }
+.db-score .db-cur { stroke: var(--accent); stroke-width: 1.5; fill-opacity: 0.85; }
+.db-score .db-g { fill: none; stroke: var(--paper); stroke-opacity: 0.35; stroke-width: 1; }
+.db-score .db-off { display: none; }
+.db-bars { position: absolute; left: 0; right: 0; top: 0; height: 14px; pointer-events: none; }
+.db-bars span {
+  position: absolute; top: 2px;
+  font-family: var(--mono); font-size: 9px; line-height: 10px; letter-spacing: 0.12em;
+  color: var(--paper-mute); font-variant-numeric: tabular-nums;
+}
+.db-bars span:nth-child(1) { left: 16px; }          /* clear of the stage's rounded corner */
+.db-bars span:nth-child(2) { left: calc(25% + 3px); }
+.db-bars span:nth-child(3) { left: calc(50% + 3px); }
+.db-bars span:nth-child(4) { left: calc(75% + 3px); }
+
+/* the conducting pad */
+.db-pad-wrap { position: relative; aspect-ratio: 16 / 10; min-height: 320px; }
+#dbPad {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; cursor: pointer;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+#dbPad:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; border-radius: 0; }
+.db-lanes {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  pointer-events: none;
+}
+.db-lanes.db-end { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.db-lanes span {
+  padding: 0 6px 14px; text-align: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper-dim); line-height: 1.35;
+  transition: color 0.3s;
+}
+.db-lanes span.in { color: var(--paper-mute); }
+.db-lanes span.lit { color: var(--accent); }
+.db-lanes small {
+  display: block; margin-top: 2px;
+  font-size: 9px; letter-spacing: 0.08em; text-transform: none; color: var(--paper-dim);
+}
+.db-ruler {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  display: flex; flex-direction: column; justify-content: space-around;
+  padding-left: 10px; pointer-events: none;
+}
+.db-ruler span {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; font-style: italic;
+  color: var(--paper-dim); transition: color 0.2s;
+}
+.db-ruler span.on { color: var(--accent); }
+.db-state {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; text-align: center;
+  padding: 24px 32px 64px;
+  pointer-events: none;
+  font-family: var(--display); font-size: clamp(22px, 2.4vw, 32px); line-height: 1.15; letter-spacing: -0.01em;
+  color: var(--paper);
+  text-wrap: pretty;
+  transition: opacity 0.3s, color 0.3s;
+}
+.db-state.off { opacity: 0; }
+.db-state span { display: block; position: relative; }
+/* the caption hangs under the main line, so that line stays centred under the ring */
+.db-state small {
+  position: absolute; left: 0; right: 0; top: 100%;
+  display: block; margin-top: 14px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-mute);
+}
+/* waiting must be unmistakable: big, amber, under the pulsing ring */
+.db-state.db-wait { color: var(--accent); font-size: clamp(30px, 3.6vw, 48px); padding-top: 110px; }
+.db-state.db-rest { color: var(--paper-mute); padding-top: 110px; }
+.db-state.db-cap {
+  place-items: start center; padding-top: 18px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent);
+}
+.db-review {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(440px, calc(100% - 32px));
+  padding: 24px 24px 22px;
+  text-align: center;
+  background: radial-gradient(90% 70% at 50% 0%, rgba(244,239,230,0.05), transparent 70%), var(--ink-soft);
+  border: 1px solid rgba(244,239,230,0.14);
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+}
+.db-take { font-family: var(--display); font-size: 34px; line-height: 1.05; letter-spacing: -0.02em; }
+.db-review .mono-note { margin: 12px 0 18px; line-height: 1.65; }
+
+@media (max-width: 560px) {
+  .db-pad-wrap { aspect-ratio: 4 / 5; max-height: 60vh; min-height: min(320px, 60vh); }
+  .db-ruler span:nth-child(2), .db-ruler span:nth-child(4), .db-ruler span:nth-child(5) { visibility: hidden; }
+  .db-lanes span { padding: 0 2px 12px; font-size: 9px; letter-spacing: 0.1em; }
+  /* LOW END steps right of the ruler's pp; the hint wraps inside the dashed lane border */
+  .db-lanes:not(.db-end) span:first-child { padding-left: 18px; }
+  .db-lanes small { max-width: 9ch; margin: 2px auto 0; font-size: 8.5px; letter-spacing: 0.02em; }
+  .db-state { padding: 20px 30px 64px; }
+  .db-state.db-wait, .db-state.db-rest { padding-top: 96px; }
+  .db-take { font-size: 28px; }
+  .db-review { padding: 20px 16px 18px; }
+}
+
+/* Landscape phone: the touch-action:none surfaces (03 crowd, 04 roll, 07 pad) are bounded
+   by height at full width, so the page still scrolls above and below them. An explicit
+   height, not max-height: with an aspect ratio a max-height would shrink the width instead */
+@media (max-width: 960px) and (max-height: 560px) {
+  .db-pad-wrap, .crowd-wrap, .roll-wrap { aspect-ratio: auto; height: 60vh; height: 60svh; min-height: 200px; }
+  .db-ruler span:nth-child(2), .db-ruler span:nth-child(4), .db-ruler span:nth-child(5) { visibility: hidden; }
+  .db-state.db-wait, .db-state.db-rest { padding-top: 64px; }
+}
+
 </style>
 </head>
 <body>
@@ -663,16 +1099,17 @@ footer {
   <svg class="hero-staff" id="heroStaff" preserveAspectRatio="none" aria-hidden="true"></svg>
   <div class="hero-inner">
     <div>
-      <span class="eyebrow"><span class="blink"></span>Harmony Lab · 4 experiments</span>
+      <span class="eyebrow"><span class="blink"></span>Harmony Lab · 7 experiments</span>
       <h1><span class="w">Harmony</span> <span class="w"><em>Lab</em></span></h1>
       <p class="hero-sub">
-        Four playable toys built on the ideas Jacob keeps coming back to:
-        <strong>a mirror</strong>, <strong>a quarter-tone</strong>, <strong>a room full of strangers</strong>
-        and <strong>one voice becoming many</strong>.
+        Seven playable toys built on the ideas Jacob keeps coming back to:
+        <strong>a mirror</strong>, <strong>a quarter-tone</strong>, <strong>a room full of strangers</strong>,
+        <strong>one voice becoming many</strong>, <strong>a grid of himself</strong>,
+        <strong>an old tune in new clothes</strong> and <strong>a band that waits for the downbeat</strong>.
       </p>
       <p class="hero-note">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 9.5v-2a5.5 5.5 0 0 1 11 0v2"/><rect x="1.5" y="9" width="3" height="5" rx="1"/><rect x="11.5" y="9" width="3" height="5" rx="1"/></svg>
-        Headphones on · everything is synthesized live, nothing is recorded
+        Headphones on · everything is synthesized live · no audio ever leaves your browser
       </p>
     </div>
     <ol class="toc">
@@ -680,6 +1117,9 @@ footer {
       <li><a href="#halfsharp"><span class="n">02</span><span class="t">G half-sharp<span class="d">Drift a choir a quarter-tone with pure tuning.</span></span><span class="arr">↓</span></a></li>
       <li><a href="#choir"><span class="n">03</span><span class="t">Audience choir<span class="d">Conduct three sections of a crowd.</span></span><span class="arr">↓</span></a></li>
       <li><a href="#harmonizer"><span class="n">04</span><span class="t">Harmonizer<span class="d">Sing one note, hear four.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#split"><span class="n">05</span><span class="t">Split Screen<span class="d">Loop a part in every square. Be the whole band.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#reels"><span class="n">06</span><span class="t">Reharm reels<span class="d">Spin new chords under a tune you know.</span></span><span class="arr">↓</span></a></li>
+      <li><a href="#downbeat"><span class="n">07</span><span class="t">Downbeat<span class="d">Tap the beat. The orchestra follows you.</span></span><span class="arr">↓</span></a></li>
     </ol>
   </div>
 </section>
@@ -904,12 +1344,297 @@ footer {
   </div>
 </section>
 
+<!-- ═══ 05 SPLIT SCREEN ════════════════════════════════════════ -->
+<section class='exp' id='split' data-lab-owner='split-screen'>
+  <div class='wrap exp-grid'>
+    <div class='exp-copy reveal'>
+      <span class='exp-num'>05 — Split Screen</span>
+      <h2>Fill the grid. <em>Every square is you.</em></h2>
+      <p class='exp-lede'>
+        Before the arenas, Jacob’s videos were split screens: a grid of Jacobs, every part sung or played by him.
+        His cover of Stevie Wonder’s <em>Don’t You Worry ’Bout a Thing</em> is the one most people remember.
+      </p>
+      <p class='exp-lede'>
+        Your turn to be the whole band. Pick a square, tap the pads and the loop plays your part back to you.
+        Every pad fits the chord that’s playing, so there are no wrong notes, only bolder ones.
+      </p>
+
+      <div class='controls'>
+        <div>
+          <div class='ctl-label'>Room</div>
+          <div class='seg' id='ssRoom' role='group' aria-label='Room'>
+            <button type='button' class='on' aria-pressed='true' data-room='0'>Sunny</button>
+            <button type='button' aria-pressed='false' data-room='1'>Late night</button>
+            <button type='button' aria-pressed='false' data-room='2'>Floaty</button>
+            <button type='button' aria-pressed='false' data-room='3'>Mirror</button>
+          </div>
+        </div>
+        <div>
+          <div class='ctl-label'>Key · tempo</div>
+          <div class='row'>
+            <div class='seg'><select id='ssKey' aria-label='Key'></select></div>
+            <div class='seg' id='ssTempo' role='group' aria-label='Tempo'>
+              <button type='button' aria-pressed='false' data-tempo='0'>Chill 84</button>
+              <button type='button' class='on' aria-pressed='true' data-tempo='1'>Groove 96</button>
+              <button type='button' aria-pressed='false' data-tempo='2'>Bounce 112</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class='ctl-label'>Tapping a square</div>
+          <div class='seg' id='ssTileMode' role='group' aria-label='What tapping a square does'>
+            <button type='button' class='on' aria-pressed='true' data-mode='pick'>Picks a part</button>
+            <button type='button' aria-pressed='false' data-mode='cut'>Cuts the mix</button>
+          </div>
+        </div>
+        <div class='row'>
+          <button class='btn' id='ssPlay' type='button'><span class='ico play'></span><span class='lbl'>Play</span></button>
+          <button class='btn ghost' id='ssUndo' type='button' disabled>Undo</button>
+          <button class='btn ghost' id='ssClear' type='button'>Clear part</button>
+        </div>
+        <div class='row'>
+          <button class='btn ghost' id='ssRec' type='button' aria-pressed='true'><span class='ico rec'></span>Record taps</button>
+          <button class='btn ghost' id='ssRoll' type='button' aria-pressed='false'>Roll call</button>
+        </div>
+        <div class='row'>
+          <button class='btn ghost' id='ssCopy' type='button'>Copy link</button>
+          <button class='btn ghost' id='ssReset' type='button'>Start over</button>
+        </div>
+        <p class='mono-note'>Keys: A S D F J K L ; play the pads · 1–6 pick a square · Space play/stop · Z undo · M mute · Delete clears the square</p>
+      </div>
+    </div>
+
+    <div class='exp-stage reveal'>
+      <div class='stage'>
+        <div class='ss-grid-wrap'>
+          <canvas id='ssGrid' aria-hidden='true'></canvas>
+          <div class='ss-tiles' id='ssTiles' role='group' aria-label='The six squares'></div>
+          <div class='ss-hint' id='ssHint'>Two of you already. Press Play, or just tap a pad.</div>
+        </div>
+        <div class='ss-pads' id='ssPads' role='group' aria-label='Pads for the selected square' data-lab-hold></div>
+        <p class='inline-msg soft' id='ssMsg' role='status'></p>
+        <div class='stage-foot'>
+          <div>
+            <div class='readout-label' id='ssFootLabel'>The band is playing</div>
+            <div class='readout-chord' id='ssChord'>E♭</div>
+            <div class='readout-colour' id='ssColour'>Bright, home.</div>
+          </div>
+          <div class='ss-foot-r'>
+            <div class='mono-note' id='ssCount'>2 of 6 squares</div>
+            <div class='mono-note' id='ssMeta'>E♭ · 96 BPM · Sunny</div>
+          </div>
+        </div>
+        <div class='sr-only' aria-live='polite' id='ssLive'></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 REHARM REELS ════════════════════════════════════════ -->
+<section class="exp flip" id="reels" data-lab-owner="reharm-reels">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">06 — Reharm reels</span>
+      <h2>Same tune. <em>Braver chords.</em></h2>
+      <p class="exp-lede">
+        Keep a melody everyone knows and change the chords underneath it. It sits at the heart of how Jacob arranges:
+        his first two Grammys, in 2017, were both for arrangements, <em>You and I</em> and <em>Flintstones</em>, from <em>In My Room</em>.
+      </p>
+      <p class="exp-lede">
+        Pick a tune, turn up the spice and spin. Every chord the reels can land on fits the melody.
+        Lock the ones you love, spin the rest, and flip back to Before to hear how far you’ve come.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Tune</div>
+          <div class="seg" id="rrTune" role="group" aria-label="Tune">
+            <button type="button" class="on" aria-pressed="true" data-tune="twinkle">Twinkle, Twinkle</button>
+            <button type="button" aria-pressed="false" data-tune="frere">Frère Jacques</button>
+          </div>
+        </div>
+        <div>
+          <div class="ctl-label">Spice</div>
+          <div class="seg" id="rrSpice" role="group" aria-label="Spice level">
+            <button type="button" aria-pressed="false" data-level="1">1 Campfire</button>
+            <button type="button" aria-pressed="false" data-level="2">2 Sunday</button>
+            <button type="button" class="on" aria-pressed="true" data-level="3">3 Jazz club</button>
+            <button type="button" aria-pressed="false" data-level="4">4 Film score</button>
+            <button type="button" aria-pressed="false" data-level="5">5 Off the map</button>
+          </div>
+        </div>
+        <div>
+          <div class="ctl-label">Layers</div>
+          <div class="row">
+            <div class="seg" id="rrLayers" role="group" aria-label="Layers">
+              <button type="button" class="on" aria-pressed="true" data-layer="choir">Choir</button>
+              <button type="button" class="on" aria-pressed="true" data-layer="bass">Bass</button>
+              <button type="button" aria-pressed="false" data-layer="keys">Keys</button>
+              <button type="button" aria-pressed="false" data-layer="brushes">Brushes</button>
+            </div>
+            <div class="seg" id="rrMelody" role="group" aria-label="Melody">
+              <button type="button" class="on" aria-pressed="true" data-melody="box">Music box</button>
+              <button type="button" aria-pressed="false" data-melody="voice">Voice</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="ctl-label">Key · tempo</div>
+          <div class="row">
+            <div class="seg"><select id="rrKey" aria-label="Key"></select></div>
+            <div class="seg" id="rrTempo" role="group" aria-label="Tempo">
+              <button type="button" aria-pressed="false" data-tempo="0">Slow 76</button>
+              <button type="button" class="on" aria-pressed="true" data-tempo="1">Easy 92</button>
+              <button type="button" aria-pressed="false" data-tempo="2">Up 108</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="rrUndo" type="button" disabled>Undo spin</button>
+          <button class="btn ghost" id="rrCopy" type="button">Copy link</button>
+        </div>
+        <p class="mono-note">Keys: ← → pick a reel · ↑ ↓ change its chord · L lock · S spin · P play/stop · B before/after</p>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <svg id="rrLane" class="rr-lane" viewBox="0 0 800 110" preserveAspectRatio="none" role="img" aria-label="The melody"></svg>
+        <div class="rr-reels" id="rrReels" role="group" aria-label="Chord reels" data-lab-hold></div>
+        <div class="row rr-actions">
+          <button class="btn" id="rrSpin" type="button"><span class="ico play"></span><span class="lbl">Spin</span></button>
+          <button class="btn ghost" id="rrPlay" type="button"><span class="ico play"></span><span class="lbl">Play</span></button>
+          <button class="btn ghost" id="rrBefore" type="button" aria-pressed="false">Before</button>
+        </div>
+        <p class="inline-msg soft" id="rrMsg" role="status"></p>
+        <div class="rr-thread-wrap">
+          <span class="readout-label">how far the singers move</span>
+          <svg id="rrThread" viewBox="0 0 800 60" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+        <div class="rr-legend" aria-hidden="true">
+          <span style="--fam: rgba(244,239,230,0.5)"><i></i>In the key</span>
+          <span style="--fam: var(--h2)"><i></i>Pulls</span>
+          <span style="--fam: var(--h3)"><i></i>Borrowed</span>
+          <span style="--fam: var(--h1)"><i></i>Sideways</span>
+          <span style="--fam: var(--h4)"><i></i>Off the map</span>
+        </div>
+        <div class="rr-history" id="rrHistory" role="group" aria-label="Your last spins"></div>
+        <div class="stage-foot">
+          <div>
+            <div class="readout-label">Reel 1</div>
+            <div class="readout-chord" id="rrChord">C</div>
+            <div class="readout-colour" id="rrColour">Bright, home.</div>
+          </div>
+          <div class="rr-foot-r">
+            <div class="mono-note" id="rrHeat">Heat 0 · Landed home</div>
+            <div class="rr-pips-row">
+              <span class="mono-note" id="rrPipText">Heard at 0 of 5 spice levels</span>
+              <div class="rr-pips" id="rrPips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="sr-only" aria-live="polite" id="rrLive"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 DOWNBEAT ════════════════════════════════════════════ -->
+<section class="exp" id="downbeat" data-lab-owner="downbeat">
+  <div class="wrap exp-grid">
+    <div class="exp-copy reveal">
+      <span class="exp-num">07 — Downbeat</span>
+      <h2>Nothing moves <em>until you do.</em></h2>
+      <p class="exp-lede">
+        Last time you handed out notes. This time you keep the time. Tap the stage once per beat and a small choir and band play <em>Ode to Joy</em> at exactly your speed. Stop tapping and they hold the chord and wait for you.
+      </p>
+      <p class="exp-lede">
+        Tap higher to play louder, and tap in a section’s lane to bring it in. <em>Djesse Vol. 1</em> was recorded with a full orchestra, the Metropole Orkest. This one is pocket-sized, and it follows you.
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="ctl-label">Arrangement</div>
+          <div class="seg" id="dbStyle" role="group" aria-label="Arrangement">
+            <button type="button" class="on" aria-pressed="true" data-style="0">Hymn</button>
+            <button type="button" aria-pressed="false" data-style="1">Gospel</button>
+            <button type="button" aria-pressed="false" data-style="2">Lullaby</button>
+          </div>
+        </div>
+        <div>
+          <div class="ctl-label">Who keeps time</div>
+          <div class="row">
+            <div class="seg" id="dbMode" role="group" aria-label="Who keeps time">
+              <button type="button" class="on" aria-pressed="true" data-mode="you">You</button>
+              <button type="button" aria-pressed="false" data-mode="auto">Auto-beat</button>
+            </div>
+            <div class="seg" id="dbAutoTempo" role="group" aria-label="Auto tempo" hidden>
+              <button type="button" aria-pressed="false" data-bpm="66">Slow 66</button>
+              <button type="button" class="on" aria-pressed="true" data-bpm="88">Walking 88</button>
+              <button type="button" aria-pressed="false" data-bpm="112">Brisk 112</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="ctl-label">Sections</div>
+          <div class="seg" id="dbSections" role="group" aria-label="Sections">
+            <button type="button" aria-pressed="false" data-sec="0">Low end</button>
+            <button type="button" class="on" aria-pressed="true" data-sec="1">Choir</button>
+            <button type="button" aria-pressed="false" data-sec="2">Keys</button>
+            <button type="button" aria-pressed="false" data-sec="3">Bells</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="dbReplay" type="button" disabled><span class="ico play"></span><span class="lbl">Replay my take</span></button>
+          <button class="btn ghost" id="dbTheirs" type="button" hidden><span class="ico play"></span><span class="lbl">Watch their take</span></button>
+          <button class="btn ghost" id="dbDeadpan" type="button" aria-pressed="false">Hear it deadpan</button>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="dbReset" type="button">Start over</button>
+          <button class="btn ghost" id="dbCopy" type="button" disabled>Copy link</button>
+        </div>
+        <p class="mono-note" id="dbLegend">Keys: Space = a beat (hold it for a fermata) · ↑ ↓ louder or softer · ← → aim at a section · 1–4 sections in or out · R replay · Esc finish</p>
+      </div>
+    </div>
+
+    <div class="exp-stage reveal">
+      <div class="stage">
+        <div class="db-score-wrap">
+          <svg id="dbScore" class="db-score" viewBox="0 0 640 72" preserveAspectRatio="none" role="img" aria-label="Your performance, beat by beat"></svg>
+          <div class="db-bars" aria-hidden="true"><span>1</span><span>5</span><span>9</span><span>13</span></div>
+        </div>
+        <div class="db-pad-wrap">
+          <canvas id="dbPad" tabindex="0" role="application" aria-roledescription="conducting pad" data-lab-hold aria-label="Conducting pad. Tap or press Space once per beat. Higher is louder. Hold for a fermata." aria-describedby="dbLegend"></canvas>
+          <div class="db-lanes" id="dbLanes" aria-hidden="true"><span>Low end</span><span>Choir</span><span>Keys</span><span>Bells</span></div>
+          <div class="db-ruler" aria-hidden="true"><span>ff</span><span>f</span><span>mf</span><span>mp</span><span>p</span><span>pp</span></div>
+          <div class="db-state" id="dbState">Tap to give the first beat</div>
+          <div class="db-review" id="dbReview" hidden>
+            <div class="db-take" id="dbTakeName"></div>
+            <p class="mono-note" id="dbStats"></p>
+            <button class="btn" id="dbAgain" type="button">Conduct again</button>
+          </div>
+        </div>
+        <p class="inline-msg soft" id="dbMsg" role="status"></p>
+        <div class="stage-foot">
+          <div>
+            <div class="readout-label" id="dbWhere">Bar 1 · beat 1</div>
+            <div class="readout-chord" id="dbChord">D</div>
+            <div class="readout-colour" id="dbColour">Waiting for a downbeat.</div>
+          </div>
+          <div class="mono-note" id="dbIn">In: choir</div>
+        </div>
+        <div class="sr-only" aria-live="polite" id="dbLive"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ OUTRO ══════════════════════════════════════════════════ -->
 <section class="outro">
   <div class="outro-inner reveal">
     <h2>Now go hear <em>the real thing.</em></h2>
     <div>
-      <p>Every experiment here is a sketch of something Jacob does for real, on stage, with actual humans. The records are where it all lives.</p>
+      <p>Every experiment here is a sketch of something Jacob does for real, in his room or on a stage, with actual humans. The records are where it all lives.</p>
       <div class="row">
         <a class="btn" href="index.html#discography">The records</a>
         <a class="btn ghost" href="index.html">Play the homepage</a>
@@ -953,9 +1678,44 @@ const io = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
 }, { threshold: 0.08 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* A deep or shared link opened cold lands short: the web fonts swap in after the
+   jump has been measured and the copy above grows. Once the fonts are in and the
+   scroll has come to rest, line the section up again, unless the visitor took over. */
+(() => {
+  const m = /^#(negative|halfsharp|choir|harmonizer|split|reels|downbeat|take)(?![\w-])/.exec(location.hash);
+  if (!m || !document.fonts || !document.fonts.ready) return;
+  let touched = false;
+  const off = () => { touched = true; };
+  ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(t => addEventListener(t, off, { passive: true, capture: true, once: true }));
+  // An instant scroll during a smooth one overshoots in Chrome: wait for ~12 still frames
+  const settled = () => new Promise(res => {
+    let y = scrollY, still = 0;
+    const tick = () => {
+      if (scrollY === y) still++; else { still = 0; y = scrollY; }
+      if (still >= 12) res(); else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  // document.fonts.ready is read at load: at parse time no font has started loading yet
+  addEventListener('load', () => document.fonts.ready.then(settled).then(() => {
+    if (touched || scrollY === 0) return;           // the visitor took over, or nothing scrolled
+    const el = document.getElementById(m[1] === 'take' ? 'downbeat' : m[1]);
+    if (!el || Math.abs(el.getBoundingClientRect().top) <= 1) return;
+    try { el.scrollIntoView({ block: 'start', behavior: 'instant' }); } catch (e) { el.scrollIntoView(true); }
+  }));
+})();
 </script>
 <script src="harmony.js"></script>
 <script src="lab.js"></script>
+<script src="lab/kit-core.js"></script>
+<script src="lab/kit.js"></script>
+<script src="lab/split-screen-core.js"></script>
+<script src="lab/split-screen.js"></script>
+<script src="lab/reharm-reels-core.js"></script>
+<script src="lab/reharm-reels.js"></script>
+<script src="lab/downbeat-core.js"></script>
+<script src="lab/downbeat.js"></script>
 <script src="analytics.js"></script>
 </body>
 </html>

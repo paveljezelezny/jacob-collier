@@ -1678,6 +1678,7 @@ footer {
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.05s !important;
@@ -1819,6 +1820,9 @@ footer {
 .lab-list li:nth-child(2) .n { color: var(--h3); }
 .lab-list li:nth-child(3) .n { color: var(--h1); }
 .lab-list li:nth-child(4) .n { color: var(--h4); }
+.lab-list li:nth-child(5) .n { color: var(--h1); }
+.lab-list li:nth-child(6) .n { color: var(--h3); }
+.lab-list li:nth-child(7) .n { color: var(--h2); }
 .lab-list .t { font-family: var(--display); font-size: clamp(22px, 2.2vw, 30px); letter-spacing: -0.015em; line-height: 1.1; }
 .lab-list .d { font-size: 15px; color: var(--paper-mute); }
 
@@ -2171,7 +2175,7 @@ footer {
   <div class="wrap">
     <div class="section-head reveal">
       <span class="section-num">05 — Harmony Lab</span>
-      <h2 class="section-h">Four toys for ears <em>that want more.</em></h2>
+      <h2 class="section-h">Seven toys for ears <em>that want more.</em></h2>
     </div>
     <div class="lab-grid reveal">
       <button class="lab-wheel" id="labWheel" type="button" aria-label="Play a chord, then its negative-harmony mirror">
@@ -2184,6 +2188,9 @@ footer {
           <li><a href="lab.html#halfsharp"><span class="n">02</span><span class="t">G half-sharp</span><span class="d">Drift a choir a quarter-tone with nothing but pure tuning.</span></a></li>
           <li><a href="lab.html#choir"><span class="n">03</span><span class="t">Audience choir</span><span class="d">Conduct three sections of a crowd into a chord.</span></a></li>
           <li><a href="lab.html#harmonizer"><span class="n">04</span><span class="t">Harmonizer</span><span class="d">Sing one note into your mic, hear four.</span></a></li>
+          <li><a href="lab.html#split"><span class="n">05</span><span class="t">Split Screen</span><span class="d">Loop a part in every square and be the whole band.</span></a></li>
+          <li><a href="lab.html#reels"><span class="n">06</span><span class="t">Reharm reels</span><span class="d">Spin braver chords under Twinkle, Twinkle.</span></a></li>
+          <li><a href="lab.html#downbeat"><span class="n">07</span><span class="t">Downbeat</span><span class="d">Tap the beat and a pocket orchestra follows you.</span></a></li>
         </ol>
         <div class="album-actions" style="margin-top:32px">
           <a href="lab.html" class="btn primary">Open the Lab</a>

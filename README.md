@@ -8,7 +8,11 @@ Lokálně: `python3 -m http.server 4173` v téhle složce → http://localhost:4
 | Soubor | Co to je |
 |---|---|
 | `index.html` | Hlavní stránka. Hero = hratelný nástroj (Web Audio). Každá sekce hraje jiný nástroj. V heru živě pojmenovává akord, který hraješ. Sekce 05 = teaser Harmony Lab (mini kruh kvint s negativní harmonií). |
-| `lab.html` + `lab.js` | **Harmony Lab**: 4 hratelné experimenty: 01 negativní harmonie (zrcadlení přes osu v kruhu kvint), 02 „G half-sharp" (čisté ladění posouvá sbor o syntonické koma 21,5 ¢ za kolo), 03 audience choir (dirigování tří sekcí publika), 04 harmonizér (mikrofon → YIN detekce výšky → diatonická harmonie; bez mikrofonu se dá táhnout prstem). |
+| `lab.html` + `lab.js` | **Harmony Lab**: 7 hratelných experimentů: 01 negativní harmonie (zrcadlení přes osu v kruhu kvint), 02 „G half-sharp" (čisté ladění posouvá sbor o syntonické koma 21,5 ¢ za kolo), 03 audience choir (dirigování tří sekcí publika), 04 harmonizér (mikrofon → YIN detekce výšky → diatonická harmonie; bez mikrofonu se dá táhnout prstem). Hry 05–07 žijí v `lab/`. |
+| `lab/split-screen*.js` | **05 Split Screen**: šest čtverců = šest hudebníků, 2taktová smyčka, pady vždy sedí na akord, změna „Room"/tóniny přeharmonizuje vše nahrané, Roll call, sdílení přes `#split=`. |
+| `lab/reharm-reels*.js` | **06 Reharm reels**: Twinkle Twinkle / Frère Jacques, 8 „automatových" válců vybírá akordy, 5 úrovní „spice", zámky, historie spinů, vrstvy, sdílení přes `#reels=`. |
+| `lab/downbeat*.js` | **07 Downbeat**: Óda na radost hraje po jedné době na každé ťuknutí (tempo, dynamika, fermata, nástupy sekcí, 3 závěry), pojmenovaný „take", přehrání, sdílení přes `#take=`. |
+| `lab/kit*.js` | Sdílený engine her: přesné plánování (lookahead clock), nástroje bass/mallet/perc/vox, vlastnictví zvuku mezi hrami, UI helpery (hash, share, localStorage, aria-live). |
 | `tour.html` | Turné 2026. Data se sama značí podle dnešního data (odehráno / další koncert). |
 | `store.html`, `contact.html`, `djesse.html` | Obchod, kontakt, archiv Djesse. |
 | `jacob_collier_web.html` | Stará beta verze, neudržuje se. |
@@ -21,7 +25,10 @@ Lokálně: `python3 -m http.server 4173` v téhle složce → http://localhost:4
 
 ## Testy
 
-`node tests/harmony.test.js`: bez instalace, čistý node. Hlídá pojmenování akordů, negativní harmonii, geometrii zrcadlení na kruhu kvint, stupnice, pravidla hlasů harmonizéru (všech 12 tónin × 3 módy) a matematiku posunu o koma. Hudební logika patří do `harmony.js`, aby šla testovat; `lab.js` je jen zvuk a kreslení.
+`for f in tests/*.test.js; do node $f || exit 1; done` (harmony, kit-core, split-screen, reharm-reels, downbeat). Bez instalace, čistý node.
+Nástroje v `_tools/` (lokální, nenasazují se): `smoke.mjs` (headless Chrome přes CDP: chyby, konzole, screenshoty, skripty), `devpage.mjs` (vývojová kopie lab.html s jednou hrou).
+
+Původní popis testu harmony: `node tests/harmony.test.js`: bez instalace, čistý node. Hlídá pojmenování akordů, negativní harmonii, geometrii zrcadlení na kruhu kvint, stupnice, pravidla hlasů harmonizéru (všech 12 tónin × 3 módy) a matematiku posunu o koma. Hudební logika patří do `harmony.js`, aby šla testovat; `lab.js` je jen zvuk a kreslení.
 
 ## Poznámky
 

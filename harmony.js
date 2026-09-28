@@ -12,6 +12,31 @@
 
   function pcName(pc)      { return PC_NAMES[mod12(Math.round(pc))]; }
   function midiName(m)     { m = Math.round(m); return pcName(m) + (Math.floor(m / 12) - 1); }
+
+  /* ── Spelling for a key ──────────────────────────────────────────
+     pcName / midiName use one fixed table. spellPc(pc, keyPc) spells a note for the
+     key whose tonic is keyPc: C♯ in D and A, G♯m as iii in E, G♭ in E♭ and D♭.
+     Each semitone above the tonic maps to a degree letter (♭2 2 ♭3 3 4 ♯4 5 ♭6 6 ♭7 7),
+     which reads right in major, lydian, dorian and minor alike, so no mode is needed.
+     The tonic is spelled as in PC_NAMES, like the key menus. A name that would need a
+     double accidental, or E♯ B♯ F♭ C♭, falls back to the key side's plain table.
+     With keyPc null / undefined it is exactly pcName. These are separate functions,
+     not a second argument to pcName: `arr.map(pcName)` passes the index there.      */
+  const SHARP_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+  const LETTERS = 'CDEFGAB', LETTER_PC = [0, 2, 4, 5, 7, 9, 11];
+  const REL_DEG = [0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6];
+  const SHARP_KEYS = [7, 2, 9, 4, 11, 6];                     // G D A E B F♯
+  function spellPc(pc, keyPc) {
+    pc = mod12(Math.round(pc));
+    if (keyPc == null || !Number.isFinite(+keyPc)) return PC_NAMES[pc];
+    keyPc = mod12(Math.round(+keyPc));
+    const L = (LETTERS.indexOf(PC_NAMES[keyPc][0]) + REL_DEG[mod12(pc - keyPc)]) % 7;
+    const d = mod12(pc - LETTER_PC[L] + 6) - 6;               // accidental, −6 … +5
+    const nm = LETTERS[L] + (d === 1 ? '♯' : d === -1 ? '♭' : '');
+    if (Math.abs(d) > 1 || /^(E♯|B♯|F♭|C♭)$/.test(nm)) return (SHARP_KEYS.includes(keyPc) ? SHARP_NAMES : PC_NAMES)[pc];
+    return nm;
+  }
+  function spellMidi(m, keyPc) { m = Math.round(m); return spellPc(m, keyPc) + (Math.floor(m / 12) - 1); }
   function midiToFreq(m)   { return 440 * Math.pow(2, (m - 69) / 12); }
   function freqToMidi(f)   { return 69 + 12 * Math.log2(f / 440); }
   function cents(a, b)     { return 1200 * Math.log2(a / b); }
@@ -82,19 +107,23 @@
   /* nameChord(notes, opts) — notes are MIDI numbers (the lowest is treated as the bass)
      or bare pitch classes. opts.free = true ignores the bass and just finds the
      plainest reading (for pitch-class sets that have no real bass note).
+     opts.keyPc spells the names for that key (see spellPc); without it they come
+     from the fixed PC_NAMES table, unchanged.
      Returns { name, root, bass, colour, pcs } or null. */
   function nameChord(notes, opts) {
     if (!notes || !notes.length) return null;
+    const keyPc = opts ? opts.keyPc : null;                  // optional: spell for this key
+    const nm = p => spellPc(p, keyPc);
     const sorted = notes.slice().sort((a, b) => a - b);
     const free = !!(opts && opts.free);
     let bass = mod12(opts && opts.bass != null ? opts.bass : sorted[0]);
     const pcs = [...new Set(sorted.map(n => mod12(Math.round(n))))];
 
-    if (pcs.length === 1) return { name: pcName(pcs[0]), root: pcs[0], bass, colour: 'a single note', pcs, kind: 'note' };
+    if (pcs.length === 1) return { name: nm(pcs[0]), root: pcs[0], bass, colour: 'a single note', pcs, kind: 'note' };
     if (pcs.length === 2) {
       const other = pcs.find(p => p !== bass);
       const iv = mod12(other - bass);
-      return { name: pcName(bass) + ' + ' + pcName(other), root: bass, bass, colour: INTERVALS[iv], pcs, kind: 'interval' };
+      return { name: nm(bass) + ' + ' + nm(other), root: bass, bass, colour: INTERVALS[iv], pcs, kind: 'interval' };
     }
 
     let best = null;
@@ -106,12 +135,12 @@
       if (!best || score < best.score) best = { score, root, hit };
     }
     if (!best) {
-      return { name: pcs.map(pcName).join(' · '), root: bass, bass, colour: 'a cluster — Jacob would call it a colour', pcs, kind: 'cluster' };
+      return { name: pcs.map(p => nm(p)).join(' · '), root: bass, bass, colour: 'a cluster — Jacob would call it a colour', pcs, kind: 'cluster' };
     }
     if (free) bass = best.root;
-    const slash = best.root !== bass ? '/' + pcName(bass) : '';
+    const slash = best.root !== bass ? '/' + nm(bass) : '';
     return {
-      name: pcName(best.root) + best.hit.suffix + slash,
+      name: nm(best.root) + best.hit.suffix + slash,
       root: best.root, bass, colour: best.hit.colour, pcs, kind: 'chord',
       quality: best.hit.suffix,
     };
@@ -237,11 +266,11 @@
     let bass = low - 3 - mod12(low - 3 - rootPc);              // highest root at least 3 semitones under everything
     if (bass < BASS_FLOOR) bass = null;
     const all = (bass == null ? [] : [bass]).concat(notes, [mel]);
-    return { notes, bass, rootDeg: r, name: nameChord(all, bass == null ? undefined : { bass }) };
+    return { notes, bass, rootDeg: r, name: nameChord(all, bass == null ? { keyPc: tonicPc } : { bass, keyPc: tonicPc }) };
   }
 
   global.Harmony = {
-    PC_NAMES, mod12, pcName, midiName, midiToFreq, freqToMidi, cents,
+    PC_NAMES, SHARP_NAMES, mod12, pcName, midiName, spellPc, spellMidi, midiToFreq, freqToMidi, cents,
     nameChord, negativePc, negativeSet, fifthsIndex, voiceChord,
     SCALES, degreeToMidi, midiToDegree, INTERVALS,
     MIRROR_AXIS_DEG, wheelPoint, wheelPath, mirrorTransform, easeInOutCubic,

@@ -33,10 +33,28 @@ function svg(tag, attrs, parent) {
 }
 function fmtCents(c) { return (c < -0.05 ? '−' : '+') + Math.abs(c).toFixed(1) + '¢'; }
 function track(name, props) { try { if (typeof window.track === 'function') window.track(name, props); } catch (e) {} }
-// Runs `onChange(isVisible)` whenever the element enters / leaves the viewport
+// Runs `onChange(isVisible)` whenever the element enters / leaves the viewport.
+// Right after a rotation or a window-width change the layout is still settling (and the
+// kit may be scrolling the playing game back into place), so a 'gone' then is checked
+// again 600 ms later instead of being taken as the visitor scrolling away.
+let reflowAt = -Infinity, reflowW = window.innerWidth;
+window.addEventListener('resize', () => { if (window.innerWidth !== reflowW) { reflowW = window.innerWidth; reflowAt = performance.now(); } });
+window.addEventListener('orientationchange', () => { reflowAt = performance.now(); });
 function watchVisibility(el, onChange, margin = '0px') {
   if (!('IntersectionObserver' in window)) { onChange(true); return; }
-  new IntersectionObserver(es => es.forEach(e => onChange(e.isIntersecting)), { rootMargin: margin }).observe(el);
+  let recheck = 0;
+  const onScreen = () => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight);
+  };
+  new IntersectionObserver(es => es.forEach(e => {
+    clearTimeout(recheck); recheck = 0;
+    if (!e.isIntersecting && margin === '0px' && performance.now() - reflowAt < 600) {
+      recheck = setTimeout(() => { recheck = 0; if (!onScreen()) onChange(false); }, 600);
+      return;
+    }
+    onChange(e.isIntersecting);
+  }), { rootMargin: margin }).observe(el);
 }
 function setPlayBtn(btn, playing, playLabel, stopLabel) {
   btn.querySelector('.ico').className = 'ico ' + (playing ? 'stop' : 'play');
@@ -91,9 +109,9 @@ const Lab = (function () {
   }
 
   /* Electric-piano-ish keys: FM sine pair + a short bell partial */
-  function keys(midi, when, dur = 1.3, vel = 0.7) {
+  function keys(midi, when, dur = 1.3, vel = 0.7, dest) {
     if (!ctx) return;
-    if (!keysBus) keysBus = bus(0.3, 1);
+    if (!dest && !keysBus) keysBus = bus(0.3, 1);
     const t = Math.max(when || 0, ctx.currentTime);
     const f = H.midiToFreq(midi);
     const car = ctx.createOscillator(); car.frequency.value = f;
@@ -109,11 +127,13 @@ const Lab = (function () {
     const amp = ctx.createGain();
     amp.gain.setValueAtTime(0.0001, t);
     amp.gain.exponentialRampToValueAtTime(0.19 * vel, t + 0.008);
-    amp.gain.exponentialRampToValueAtTime(0.07 * vel, t + 0.7);
+    // Short notes must decay inside their own length, or the ramps fall out of time order
+    const mid = dur >= 0.7 ? 0.7 : dur * 0.6;
+    amp.gain.exponentialRampToValueAtTime(0.07 * vel, t + mid);
     amp.gain.exponentialRampToValueAtTime(0.035 * vel, t + dur);
     amp.gain.setTargetAtTime(0.0001, t + dur, 0.18);
     car.connect(amp); bell.connect(bellG); bellG.connect(amp);
-    amp.connect(keysBus);
+    amp.connect(dest || keysBus);
     const end = t + dur + 1.4;
     [car, mod, bell].forEach(o => { o.start(t); o.stop(end); });
     car.onended = () => { try { amp.disconnect(); } catch (e) {} };
@@ -125,6 +145,9 @@ const Lab = (function () {
     oh: [[480, 1.0, 80],  [820,  0.35, 90],  [2700, 0.08, 120]],
     oo: [[330, 1.0, 60],  [760,  0.14, 80],  [2600, 0.04, 140]],
   };
+  // Shared read-only with the kit (Lab.vox): freeze it so nobody retunes the choir by accident
+  Object.values(VOWELS).forEach(v => { v.forEach(Object.freeze); Object.freeze(v); });
+  Object.freeze(VOWELS);
   const MAKEUP = 3.0;
 
   function choirVoice(opts) {
@@ -175,6 +198,19 @@ const Lab = (function () {
         oscs.forEach(x => { x.osc.frequency.cancelScheduledValues(now); x.osc.frequency.setValueAtTime(freq, now); });
       },
       gain(g, tau = 0.08) { if (alive) amp.gain.setTargetAtTime(g, ctx.currentTime, tau); },
+      // Scheduled twins of set / gain, for callers that plan ahead on the kit clock
+      setAt(freq, when, glide = 0.03) {
+        if (!alive) return;
+        oscs.forEach(x => x.osc.frequency.setTargetAtTime(freq, when, glide));
+      },
+      gainAt(g, when, tau = 0.08) { if (alive) amp.gain.setTargetAtTime(g, when, tau); },
+      // Drop anything scheduled from `when` on (e.g. an off-beat pitch the next tap overtook)
+      clearFrom(when) {
+        if (!alive) return;
+        const clear = p => (p.cancelAndHoldAtTime ? p.cancelAndHoldAtTime(when) : p.cancelScheduledValues(when));
+        oscs.forEach(x => clear(x.osc.frequency));
+        clear(amp.gain);
+      },
       vowel(v, tau = 0.12) {
         if (!alive || !VOWELS[v]) return;
         const now = ctx.currentTime;
@@ -197,8 +233,11 @@ const Lab = (function () {
     };
   }
 
-  return { ensure, bus, keys, choirVoice, get ctx() { return ctx; } };
+  return { ensure, bus, keys, choirVoice, VOWELS, get ctx() { return ctx; } };
 })();
+// The games in lab/ extend these (lab/kit.js)
+window.Lab = Lab;
+window.LabUI = { REDUCED, watchVisibility, setPlayBtn, track };
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1031,7 +1070,8 @@ const Lab = (function () {
   function busy(now) {
     const t = now / 1000;
     if (demoOn || drag) return true;
-    if (Math.abs(baton.x - baton.tx) > 0.5 || Math.abs(baton.y - baton.ty) > 0.5) return true;
+    // the same target drawFrame eases toward (an untouched baton rests at cx, Hh)
+    if (Math.abs(baton.x - (baton.tx || cx)) > 0.5 || Math.abs(baton.y - (baton.ty || Hh)) > 0.5) return true;
     return SECTIONS.some(s => REDUCED
       ? Math.abs(s.level - (s.voice ? 1 : 0)) > 0.01
       : s.voice || s.level > 0.01 || t - s.changeT < RIPPLE_S);
@@ -1312,8 +1352,9 @@ const Lab = (function () {
         curHarm = H.harmonize(snap, { tonicPc, mode, lastRoot });   // voicing rules + tests live in harmony.js
         lastRoot = curHarm.rootDeg;
         chordEl.textContent = curHarm.name ? curHarm.name.name : '—';
-        notesEl.textContent = 'you ' + H.midiName(snap) + ' · choir ' + curHarm.notes.map(H.midiName).join(' ')
-          + (curHarm.bass != null ? ' · bass ' + H.midiName(curHarm.bass) : ' · you’re the bass');
+        const sp = m => H.spellMidi(m, tonicPc);                    // C♯ in D major, not D♭
+        notesEl.textContent = 'you ' + sp(snap) + ' · choir ' + curHarm.notes.map(sp).join(' ')
+          + (curHarm.bass != null ? ' · bass ' + sp(curHarm.bass) : ' · you’re the bass');
       }
       if (voices) {
         const amp = micOn && !dragging ? clamp(0.06 + lvl * 0.3, 0, 0.19) : 0.15;
@@ -1361,7 +1402,7 @@ const Lab = (function () {
       const inKey = scalePcs.includes(pc), tonic = pc === tonicPc;
       g.fillStyle = tonic ? 'rgba(244,239,230,0.10)' : inKey ? 'rgba(244,239,230,0.05)' : 'rgba(244,239,230,0.018)';
       g.fillRect(0, y - 0.5, W, 1);
-      if (inKey) { g.fillStyle = tonic ? 'rgba(244,239,230,0.55)' : 'rgba(244,239,230,0.25)'; g.fillText(H.midiName(m), 10, y - 4); }
+      if (inKey) { g.fillStyle = tonic ? 'rgba(244,239,230,0.55)' : 'rgba(244,239,230,0.25)'; g.fillText(H.spellMidi(m, tonicPc), 10, y - 4); }
     }
     const pxPerMs = W / (HISTORY_S * 1000);
     const xOf = t => W - 70 - (now - t) * pxPerMs;
@@ -1398,7 +1439,7 @@ const Lab = (function () {
         if (m == null) return;
         g.fillStyle = VOICE_COLORS[v];
         g.beginPath(); g.arc(nowX, yOf(m), 5, 0, 6.2832); g.fill();
-        g.fillText(H.midiName(m), nowX + 10, yOf(m) + 3);
+        g.fillText(H.spellMidi(m, tonicPc), nowX + 10, yOf(m) + 3);
       });
       g.fillStyle = '#F4EFE6';
       g.beginPath(); g.arc(nowX, yOf(lastH.raw), 6.5, 0, 6.2832); g.fill();

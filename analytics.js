@@ -26,7 +26,13 @@ var ANALYTICS = {
 !function(t,e){var o,n,p,r;e.__SV||(window.posthog&&window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init os ds Ie us vs ss ls capture calculateEventProperties register register_once register_for_session unregister unregister_for_session ws getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty bs ps createPersonProfile setInternalOrTestUser ys es $s opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing cs debug M gs getPageViewId captureTraceFeedback captureTraceMetric Qr".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
 
 /* Zapneme PostHog jen když je vložený reálný klíč (phc_…). */
-var PH_ON = (ANALYTICS.posthogKey || '').slice(0, 4) === 'phc_';
+/* Lokální vývoj a testy (localhost, file://, headless prohlížeče) se nepočítají:
+   jinak by každé spuštění testu zvedlo veřejné počítadlo návštěv. */
+var IS_LOCAL = location.protocol === 'file:' ||
+  /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$|\.local$|\.test$|\.localhost$/.test(location.hostname) ||
+  navigator.webdriver === true || /HeadlessChrome/.test(navigator.userAgent);
+
+var PH_ON = !IS_LOCAL && (ANALYTICS.posthogKey || '').slice(0, 4) === 'phc_';
 if (PH_ON) {
   posthog.init(ANALYTICS.posthogKey, {
     api_host: ANALYTICS.posthogHost,
@@ -126,7 +132,7 @@ function initCounter() {
   var KEY = 'jc_visited_session';
   var counted = false;
   try { counted = sessionStorage.getItem(KEY) === '1'; } catch (e) {}
-  var fn = counted ? 'jc_get_visits' : 'jc_bump_visits';
+  var fn = (counted || IS_LOCAL) ? 'jc_get_visits' : 'jc_bump_visits';   // lokálně jen čteme
   if (!counted) { try { sessionStorage.setItem(KEY, '1'); } catch (e) {} }
   rpc(fn).then(renderCount).catch(function () {});
 }
